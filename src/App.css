@@ -1,0 +1,9 @@
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0; /* 눈에는 안 보임 */
+  width: 100%; /* input 전체 영역에 걸치게 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  cursor: pointer;
+}
