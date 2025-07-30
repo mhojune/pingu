@@ -1,69 +1,15 @@
-# React + TypeScript + Vite
+# 지도 기반 디지털 일기 앱
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 프로젝트 소개
 
-Currently, two official plugins are available:
+### 주제 선정 배경
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+현대인들은 사진, 메모, SNS 등을 통해 일상을 기록하지만, 시간이 지나면 그 순간의 감정이나 장소에 대한 기억은 쉽게 흐려집니다. 특히 여행 중의 특별한 경험이나 소중한 장소를 글로 남기려 해도 기존 다이어리 방식은 접근성이 떨어지고 반복해서 확인하지 않는 경우가 많습니다. 이에 따라 기억을 보다 직관적으로 시각화하고, 다시 떠올릴 수 있는 방식의 기록 도구가 필요하다고 느꼈습니다. 이 프로젝트는 이러한 필요에서 출발하여, 지도를 기반으로 개인의 추억과 감정을 기록하는 새로운 형태의 디지털 일기를 만들고자 합니다.
 
-## Expanding the ESLint configuration
+### 대상 사용자
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+추억을 기록하고 싶어하는 모든 사람
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 프로젝트의 목적
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+사용자가 자신만의 경험과 감정을 지도 위에 시각적으로 기록하고 관리할 수 있는 플랫폼을 제공하는 것입니다. 사용자는 특정 장소에 방문했을 때의 기억을 텍스트나 사진 등으로 남기고, 이를 지도의 핀 형태로 저장함으로써 언제든지 다시 돌아가 보고, 추억을 회상할 수 있습니다. 이를 통해 사용자들은 더 개인화되고 감성적인 기록 방식을 경험할 수 있으며, 일상 속 소중한 순간을 더 오래 간직할 수 있게 됩니다.
