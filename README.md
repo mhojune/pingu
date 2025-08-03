@@ -13,3 +13,33 @@
 ### 프로젝트의 목적
 
 사용자가 자신만의 경험과 감정을 지도 위에 시각적으로 기록하고 관리할 수 있는 플랫폼을 제공하는 것입니다. 사용자는 특정 장소에 방문했을 때의 기억을 텍스트나 사진 등으로 남기고, 이를 지도의 핀 형태로 저장함으로써 언제든지 다시 돌아가 보고, 추억을 회상할 수 있습니다. 이를 통해 사용자들은 더 개인화되고 감성적인 기록 방식을 경험할 수 있으며, 일상 속 소중한 순간을 더 오래 간직할 수 있게 됩니다.
+
+## 🚀 배포
+
+이 프로젝트는 GitHub Pages를 통해 배포됩니다.
+
+### 라이브 데모
+
+[GitHub Pages 링크](https://mhojune.github.io/pingu/)
+
+### 로컬 개발
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+
+# 빌드
+npm run build
+```
+
+## 🛠️ 기술 스택
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Kakao Maps API
+- FontAwesome
