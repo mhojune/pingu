@@ -42,13 +42,13 @@ function Header({
         <div className="transition-all duration-500 ease-in-out">
           {!showDropDown && !showPinPage ? (
             <img
-              src="/logo.png"
+              src="./logo.png"
               alt="logo"
               className="w-full mb-10 transition-all duration-500 ease-in-out"
             />
           ) : (
             <img
-              src="/logo_min.png"
+              src="./logo_min.png"
               alt="logo"
               className="w-1/0.5 h-auto mb-10 transition-all duration-500 ease-in-out"
             />

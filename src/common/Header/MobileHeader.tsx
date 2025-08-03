@@ -47,7 +47,7 @@ function MobileHeader({
           boxShadow: hasSearchResults ? "none" : "1px 0 12px 0 rgba(0,0,0,0.4)",
         }}
       >
-        <img src="/logo.png" alt="logo" className="w-1/3 h-[90%]" />
+        <img src="./logo.png" alt="logo" className="w-1/3 h-[90%]" />
         <div className="flex gap-4 mr-3">
           <div
             className={`bg-gray-200 rounded-full flex items-center justify-center p-2 cursor-pointer transition-all duration-300 ${
