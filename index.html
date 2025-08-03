@@ -5,16 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/P.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/src/index.css" />
-    <script>
-      // 카카오맵 API 키를 환경변수에서 가져오거나 기본값 사용
-      const KAKAO_API_KEY = '%VITE_KAKAO_MAP_API_KEY%' || 'b422cb29ca2e9e24e90e8e9971735ab1';
-      
-      // 카카오맵 SDK 동적 로드
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services,clusterer,drawing`;
-      document.head.appendChild(script);
-    </script>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b422cb29ca2e9e24e90e8e9971735ab1&libraries=services,clusterer,drawing"
+    ></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap");
     </style>

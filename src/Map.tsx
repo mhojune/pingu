@@ -134,7 +134,7 @@ const Map = ({ searchKeyword, onSearchResults }: MapProps) => {
   };
 
   // 마커 생성
-  const addMarker = (position: any, idx: number, title: string) => {
+  const addMarker = (position: any, idx: number, _title: string) => {
     const imageSrc =
       "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png";
     const imageSize = new window.kakao.maps.Size(36, 37);

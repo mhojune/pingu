@@ -10,7 +10,7 @@ type MobileHeaderProps = {
 };
 
 function MobileHeader({
-  onSearchClick,
+  onSearchClick: _onSearchClick,
   onMenuClick,
   setSearchKeyword,
   searchResults,
