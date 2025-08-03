@@ -6,6 +6,7 @@ import Map from "./Map";
 import Footer from "./common/Footer";
 import MobileDropDown from "./common/Header/MobileDropDown";
 import PinPage from "./Feature/PinPage";
+import MobileSearchPage from "./Feature/Mobile/MobileSearchPage";
 
 function App() {
   const [showMobileDropDown, setShowMobileDropDown] = useState(false);
@@ -17,7 +18,7 @@ function App() {
   return (
     <div className="flex md:flex-row flex-col h-screen relative">
       <div
-        className={`h-full z-10 ${
+        className={`h-full z-10 transition-all duration-500 ease-in-out ${
           showDropDown || showPinPage
             ? "md:flex-[0.5] flex-[1.4]"
             : "md:flex-[1.5] flex-[1.4]"
@@ -28,7 +29,6 @@ function App() {
           showPinPage={showPinPage}
           showDropDown={showDropDown}
           setShowDropDown={setShowDropDown}
-          searchKeyword={searchKeyword}
           setSearchKeyword={setSearchKeyword}
           searchResults={searchResults}
         />
@@ -38,6 +38,7 @@ function App() {
           <Map searchKeyword={searchKeyword} onSearchResults={setSearchResults} />
           <MobileDropDown isVisible={showMobileDropDown} />
           {showPinPage && <PinPage />}
+          <MobileSearchPage searchResults={searchResults} />
         </Background>
       </div>
       <div className="md:hidden flex-1 z-10">

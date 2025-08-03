@@ -35,6 +35,7 @@ const Background: React.FC<BackgroundProps> = ({ children, showPinPage = false }
             }}
           >
             {children}
+
             {/* 접힌 종이 효과 - 모바일에서만, showPinPage가 false일 때만 */}
             {!showPinPage && (
               <div

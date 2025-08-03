@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -94,7 +94,7 @@ const Map = ({ searchKeyword, onSearchResults }: MapProps) => {
   };
 
   // 검색 완료 콜백
-  const placesSearchCB = (data: any, status: any, pagination: any) => {
+  const placesSearchCB = (data: any, status: any) => {
     console.log("검색 콜백 실행:", status, data);
     if (status === window.kakao.maps.services.Status.OK) {
       console.log("검색 성공, 결과 개수:", data.length);

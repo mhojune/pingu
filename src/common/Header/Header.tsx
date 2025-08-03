@@ -8,6 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DropDown from "./DropDown";
 import SearchPage from "../../Feature/SearchPage";
+import MobileHeader from "./MobileHeader";
 import { useState } from "react";
 
 type HeaderProps = {
@@ -15,7 +16,6 @@ type HeaderProps = {
   showPinPage: boolean;
   showDropDown: boolean;
   setShowDropDown: (value: boolean) => void;
-  searchKeyword?: string;
   setSearchKeyword?: (keyword: string) => void;
   searchResults?: any[];
 };
@@ -25,7 +25,6 @@ function Header({
   showPinPage,
   showDropDown,
   setShowDropDown,
-  searchKeyword,
   setSearchKeyword,
   searchResults,
 }: HeaderProps) {
@@ -37,16 +36,26 @@ function Header({
   return (
     <div className="flex w-full h-full relative">
       <div
-        className={`flex-col items-center justify-between h-full p-8 bg-[#fafaf8] transition-all duration-500 z-10 md:flex hidden w-full`}
+        className="flex-col items-center justify-between h-full p-8 bg-[#fafaf8] transition-all duration-500 ease-in-out z-10 md:flex hidden w-full"
         style={{ boxShadow: "1px 0 12px 0 rgba(0,0,0,0.4)" }}
       >
-        {!showDropDown && !showPinPage ? (
-          <img src="/logo.png" alt="logo" className="w-full mb-10" />
-        ) : (
-          <img src="/logo_min.png" alt="logo" className="w-1/0.5 h-auto mb-10" />
-        )}
+        <div className="transition-all duration-500 ease-in-out">
+          {!showDropDown && !showPinPage ? (
+            <img
+              src="/logo.png"
+              alt="logo"
+              className="w-full mb-10 transition-all duration-500 ease-in-out"
+            />
+          ) : (
+            <img
+              src="/logo_min.png"
+              alt="logo"
+              className="w-1/0.5 h-auto mb-10 transition-all duration-500 ease-in-out"
+            />
+          )}
+        </div>
         <div
-          className={`flex flex-col text-2xl w-full gap-6 text-gray-500 mb-auto ${
+          className={`flex flex-col text-2xl w-full gap-6 text-gray-500 mb-auto transition-all duration-500 ease-in-out ${
             (showDropDown || showPinPage) && "justify-center items-center"
           }`}
         >
@@ -58,7 +67,7 @@ function Header({
               setShowFolderPage(false);
               setShowMenuPage(false);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faSearch} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Search</span>}
@@ -71,7 +80,7 @@ function Header({
               setShowFolderPage(false);
               setShowMenuPage(false);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faUserFriends} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Friends</span>}
@@ -84,7 +93,7 @@ function Header({
               setShowFriendsPage(false);
               setShowMenuPage(false);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faFolder} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Folder</span>}
@@ -97,7 +106,7 @@ function Header({
               setShowFriendsPage(false);
               setShowFolderPage(false);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faBars} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Menu</span>}
@@ -106,38 +115,42 @@ function Header({
         <div className="flex justify-center items-center w-full mt-auto">
           <FontAwesomeIcon
             icon={faPlus}
-            className="text-6xl text-red-500 cursor-pointer"
+            className="text-6xl text-red-500 cursor-pointer transition-all duration-300 ease-in-out hover:scale-110"
             onClick={() => setShowPinPage(!showPinPage)}
           />
         </div>
       </div>
-      {showDropDown && (
-        <div className="absolute left-full top-0 w-lg h-full">
-          <DropDown>
-            {showSearchPage && (
-              <SearchPage
-                onSearchKeyword={setSearchKeyword}
-                searchResults={searchResults}
-              />
-            )}
-          </DropDown>
-        </div>
-      )}
-      {/* Mobile */}
+
+      {/* 드롭다운 애니메이션 */}
       <div
-        className="md:hidden flex bg-[#fafaf8] w-full items-end p-3 justify-between"
-        style={{ boxShadow: "1px 0 12px 0 rgba(0,0,0,0.4)" }}
+        className={`absolute left-full top-0 w-lg h-full transition-all duration-500 ease-in-out md:block hidden ${
+          showDropDown
+            ? "opacity-100 transform translate-x-0"
+            : "opacity-0 transform -translate-x-4 pointer-events-none"
+        }`}
       >
-        <img src="/logo.png" alt="logo" className="w-1/3 h-[90%]" />
-        <div className="flex gap-4 mr-3">
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center p-2">
-            <FontAwesomeIcon icon={faSearch} className="text-lg text-gray-500" />
-          </div>
-          <div className="w-10 h-10 bg-red-400 rounded-full flex items-center justify-center p-2">
-            <FontAwesomeIcon icon={faBars} className="text-lg text-white" />
-          </div>
-        </div>
+        <DropDown>
+          {showSearchPage && (
+            <SearchPage
+              onSearchKeyword={setSearchKeyword}
+              searchResults={searchResults}
+            />
+          )}
+        </DropDown>
       </div>
+
+      {/* Mobile */}
+      <MobileHeader
+        onMenuClick={() => {
+          setShowDropDown(!showDropDown);
+          setShowMenuPage(!showMenuPage);
+          setShowSearchPage(false);
+          setShowFriendsPage(false);
+          setShowFolderPage(false);
+        }}
+        setSearchKeyword={setSearchKeyword}
+        searchResults={searchResults}
+      />
     </div>
   );
 }
