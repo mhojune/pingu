@@ -11,6 +11,8 @@ function App() {
   const [showMobileDropDown, setShowMobileDropDown] = useState(false);
   const [showPinPage, setShowPinPage] = useState(false);
   const [showDropDown, setShowDropDown] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   return (
     <div className="flex md:flex-row flex-col h-screen relative">
@@ -26,11 +28,14 @@ function App() {
           showPinPage={showPinPage}
           showDropDown={showDropDown}
           setShowDropDown={setShowDropDown}
+          searchKeyword={searchKeyword}
+          setSearchKeyword={setSearchKeyword}
+          searchResults={searchResults}
         />
       </div>
       <div className="md:flex-9 bg-white z-0 flex-9">
         <Background showPinPage={showPinPage}>
-          <Map />
+          <Map searchKeyword={searchKeyword} onSearchResults={setSearchResults} />
           <MobileDropDown isVisible={showMobileDropDown} />
           {showPinPage && <PinPage />}
         </Background>

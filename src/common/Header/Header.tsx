@@ -7,12 +7,17 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import DropDown from "./DropDown";
+import SearchPage from "../../Feature/SearchPage";
+import { useState } from "react";
 
 type HeaderProps = {
   setShowPinPage: (value: boolean) => void;
   showPinPage: boolean;
   showDropDown: boolean;
   setShowDropDown: (value: boolean) => void;
+  searchKeyword?: string;
+  setSearchKeyword?: (keyword: string) => void;
+  searchResults?: any[];
 };
 
 function Header({
@@ -20,7 +25,15 @@ function Header({
   showPinPage,
   showDropDown,
   setShowDropDown,
+  searchKeyword,
+  setSearchKeyword,
+  searchResults,
 }: HeaderProps) {
+  const [showSearchPage, setShowSearchPage] = useState(false);
+  const [showFriendsPage, setShowFriendsPage] = useState(false);
+  const [showFolderPage, setShowFolderPage] = useState(false);
+  const [showMenuPage, setShowMenuPage] = useState(false);
+
   return (
     <div className="flex w-full h-full relative">
       <div
@@ -37,19 +50,55 @@ function Header({
             (showDropDown || showPinPage) && "justify-center items-center"
           }`}
         >
-          <div onClick={() => setShowDropDown(true)} className="cursor-pointer">
+          <div
+            onClick={() => {
+              setShowDropDown(!showDropDown);
+              setShowSearchPage(!showSearchPage);
+              setShowFriendsPage(false);
+              setShowFolderPage(false);
+              setShowMenuPage(false);
+            }}
+            className="cursor-pointer"
+          >
             <FontAwesomeIcon icon={faSearch} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Search</span>}
           </div>
-          <div onClick={() => setShowDropDown(true)} className="cursor-pointer">
+          <div
+            onClick={() => {
+              setShowDropDown(!showDropDown);
+              setShowFriendsPage(!showFriendsPage);
+              setShowSearchPage(false);
+              setShowFolderPage(false);
+              setShowMenuPage(false);
+            }}
+            className="cursor-pointer"
+          >
             <FontAwesomeIcon icon={faUserFriends} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Friends</span>}
           </div>
-          <div onClick={() => setShowDropDown(true)} className="cursor-pointer">
+          <div
+            onClick={() => {
+              setShowDropDown(!showDropDown);
+              setShowFolderPage(!showFolderPage);
+              setShowSearchPage(false);
+              setShowFriendsPage(false);
+              setShowMenuPage(false);
+            }}
+            className="cursor-pointer"
+          >
             <FontAwesomeIcon icon={faFolder} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Folder</span>}
           </div>
-          <div onClick={() => setShowDropDown(true)} className="cursor-pointer">
+          <div
+            onClick={() => {
+              setShowDropDown(!showDropDown);
+              setShowMenuPage(!showMenuPage);
+              setShowSearchPage(false);
+              setShowFriendsPage(false);
+              setShowFolderPage(false);
+            }}
+            className="cursor-pointer"
+          >
             <FontAwesomeIcon icon={faBars} className="mr-5" />
             {!showDropDown && !showPinPage && <span>Menu</span>}
           </div>
@@ -63,8 +112,15 @@ function Header({
         </div>
       </div>
       {showDropDown && (
-        <div className="absolute left-0 top-0 w-lg h-full">
-          <DropDown></DropDown>
+        <div className="absolute left-full top-0 w-lg h-full">
+          <DropDown>
+            {showSearchPage && (
+              <SearchPage
+                onSearchKeyword={setSearchKeyword}
+                searchResults={searchResults}
+              />
+            )}
+          </DropDown>
         </div>
       )}
       {/* Mobile */}

@@ -1,10 +1,10 @@
-const DropDown = () => {
+const DropDown = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
-      className="bg-gray-100 w-full h-full rounded-4xl pl-25"
+      className="bg-gray-100 w-[80%] lg:w-[85%] xl:w-[90%] h-full rounded-r-4xl"
       style={{ boxShadow: "1px 0 12px 0 rgba(0,0,0,0.4)" }}
     >
-      <span>드롭다운 내용</span>
+      {children}
     </div>
   );
 };
