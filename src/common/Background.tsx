@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import BookMark from "./BookMark";
 
 interface BackgroundProps {
   children: React.ReactNode;
@@ -7,11 +8,27 @@ interface BackgroundProps {
 
 const Background: React.FC<BackgroundProps> = ({ children, showPinPage = false }) => {
   const [showBookMark, setShowBookMark] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // 초기 체크
+    checkScreenSize();
+
+    // 화면 크기 변화 감지
+    window.addEventListener("resize", checkScreenSize);
+
+    // 클린업
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   return (
     <div className="bg-gray-300 h-full flex items-center">
       <div
-        className={`bg-gray-100 h-full md:w-[90%] z-10 ${
+        className={`bg-gray-100 h-full md:w-[90%] z-10 transition-all duration-300 ease-in-out ${
           showBookMark ? "w-[85%]" : "w-full"
         }`}
         style={{
@@ -19,7 +36,7 @@ const Background: React.FC<BackgroundProps> = ({ children, showPinPage = false }
         }}
       >
         <div
-          className={`bg-gray-100 h-full md:w-[99.5%] z-10 ${
+          className={`bg-gray-100 h-full md:w-[99.5%] z-10 transition-all duration-300 ease-in-out ${
             showBookMark ? "w-[99.5%]" : "w-full"
           }`}
           style={{
@@ -27,7 +44,7 @@ const Background: React.FC<BackgroundProps> = ({ children, showPinPage = false }
           }}
         >
           <div
-            className={`bg-gray-100 h-full md:w-[99.5%] z-10 relative ${
+            className={`bg-gray-100 h-full md:w-[99.5%] z-10 relative transition-all duration-300 ease-in-out ${
               showBookMark ? "w-[99.5%]" : "w-full"
             }`}
             style={{
@@ -52,6 +69,13 @@ const Background: React.FC<BackgroundProps> = ({ children, showPinPage = false }
           </div>
         </div>
       </div>
+      {/* BookMark를 책 디자인 div들의 바로 오른쪽에 위치 */}
+      {/* 모바일에서는 showBookMark 상태에 따라, 데스크톱에서는 항상 표시 */}
+      {(showBookMark || !isMobile) && (
+        <div className="flex flex-col items-start justify-start h-full md:pt-10 pt-5">
+          <BookMark />
+        </div>
+      )}
     </div>
   );
 };
