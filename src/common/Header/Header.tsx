@@ -145,13 +145,6 @@ function Header({
 
       {/* Mobile */}
       <MobileHeader
-        onMenuClick={() => {
-          setShowDropDown(!showDropDown);
-          setShowPinListPage(!showPinListPage);
-          setShowSearchPage(false);
-          setShowFriendsPage(false);
-          setShowFolderPage(false);
-        }}
         setSearchKeyword={setSearchKeyword}
         searchResults={searchResults}
         setShowMobilePinList={setShowMobilePinList}

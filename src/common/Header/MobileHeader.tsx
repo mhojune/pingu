@@ -4,7 +4,6 @@ import { useState } from "react";
 
 type MobileHeaderProps = {
   onSearchClick?: () => void;
-  onMenuClick?: () => void;
   setSearchKeyword?: (keyword: string) => void;
   searchResults?: any[];
   setShowMobilePinList: (value: boolean) => void;
@@ -12,7 +11,6 @@ type MobileHeaderProps = {
 
 function MobileHeader({
   onSearchClick: _onSearchClick,
-  onMenuClick,
   setSearchKeyword,
   searchResults,
   setShowMobilePinList,
