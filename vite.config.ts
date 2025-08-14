@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => ({
     },
     // 빌드 시 캐시 무효화
     sourcemap: false,
-    minify: "terser",
+    // 기본 minifier 사용
+    minify: true,
     // 빌드 결과물에 해시 추가
     assetsInlineLimit: 0,
   },
