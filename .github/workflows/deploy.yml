@@ -20,6 +20,12 @@ jobs:
           node-version: "20"
           cache: "npm"
 
+      - name: Clear cache
+        run: |
+          npm cache clean --force
+          rm -rf node_modules
+          rm -rf dist
+
       - name: Install dependencies
         run: npm ci
 
@@ -35,3 +41,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
+          cname: # 도메인이 있다면 여기에 입력
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Deploy to GitHub Pages - $(date)"

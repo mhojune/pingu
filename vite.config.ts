@@ -10,7 +10,19 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: undefined,
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        assetFileNames: `assets/[name].[hash].[ext]`,
       },
     },
+    // 빌드 시 캐시 무효화
+    sourcemap: false,
+    minify: "terser",
+    // 빌드 결과물에 해시 추가
+    assetsInlineLimit: 0,
+  },
+  // 개발 서버 설정
+  server: {
+    hmr: true,
   },
 }));
