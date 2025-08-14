@@ -7,6 +7,7 @@ type MobileHeaderProps = {
   onMenuClick?: () => void;
   setSearchKeyword?: (keyword: string) => void;
   searchResults?: any[];
+  setShowMobilePinList: (value: boolean) => void;
 };
 
 function MobileHeader({
@@ -14,6 +15,7 @@ function MobileHeader({
   onMenuClick,
   setSearchKeyword,
   searchResults,
+  setShowMobilePinList,
 }: MobileHeaderProps) {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -88,7 +90,11 @@ function MobileHeader({
           </div>
           <div
             className="w-10 h-10 bg-red-400 rounded-full flex items-center justify-center p-2 cursor-pointer"
-            onClick={onMenuClick}
+            onClick={() => {
+              console.log("빨간 버튼 클릭됨");
+              setShowMobilePinList(true);
+              console.log("setShowMobilePinList(true) 호출됨");
+            }}
           >
             <FontAwesomeIcon icon={faBars} className="text-lg text-white" />
           </div>

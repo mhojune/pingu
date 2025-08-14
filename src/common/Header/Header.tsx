@@ -10,6 +10,7 @@ import DropDown from "./DropDown";
 import SearchPage from "../../Feature/SearchPage";
 import MobileHeader from "./MobileHeader";
 import { useState } from "react";
+import PinList from "../../Feature/PinList";
 
 type HeaderProps = {
   setShowPinPage: (value: boolean) => void;
@@ -18,6 +19,7 @@ type HeaderProps = {
   setShowDropDown: (value: boolean) => void;
   setSearchKeyword?: (keyword: string) => void;
   searchResults?: any[];
+  setShowMobilePinList: (value: boolean) => void;
 };
 
 function Header({
@@ -27,11 +29,12 @@ function Header({
   setShowDropDown,
   setSearchKeyword,
   searchResults,
+  setShowMobilePinList,
 }: HeaderProps) {
   const [showSearchPage, setShowSearchPage] = useState(false);
   const [showFriendsPage, setShowFriendsPage] = useState(false);
   const [showFolderPage, setShowFolderPage] = useState(false);
-  const [showMenuPage, setShowMenuPage] = useState(false);
+  const [showPinListPage, setShowPinListPage] = useState(false);
 
   return (
     <div className="flex w-full h-full relative">
@@ -65,7 +68,7 @@ function Header({
               setShowSearchPage(!showSearchPage);
               setShowFriendsPage(false);
               setShowFolderPage(false);
-              setShowMenuPage(false);
+              setShowPinListPage(false);
             }}
             className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
@@ -78,7 +81,7 @@ function Header({
               setShowFriendsPage(!showFriendsPage);
               setShowSearchPage(false);
               setShowFolderPage(false);
-              setShowMenuPage(false);
+              setShowPinListPage(false);
             }}
             className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
@@ -91,7 +94,7 @@ function Header({
               setShowFolderPage(!showFolderPage);
               setShowSearchPage(false);
               setShowFriendsPage(false);
-              setShowMenuPage(false);
+              setShowPinListPage(false);
             }}
             className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
@@ -101,7 +104,7 @@ function Header({
           <div
             onClick={() => {
               setShowDropDown(!showDropDown);
-              setShowMenuPage(!showMenuPage);
+              setShowPinListPage(!showPinListPage);
               setShowSearchPage(false);
               setShowFriendsPage(false);
               setShowFolderPage(false);
@@ -109,7 +112,7 @@ function Header({
             className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faBars} className="mr-5" />
-            {!showDropDown && !showPinPage && <span>Menu</span>}
+            {!showDropDown && !showPinPage && <span>PinList</span>}
           </div>
         </div>
         <div className="flex justify-center items-center w-full mt-auto">
@@ -136,6 +139,7 @@ function Header({
               searchResults={searchResults}
             />
           )}
+          {showPinListPage && <PinList />}
         </DropDown>
       </div>
 
@@ -143,13 +147,14 @@ function Header({
       <MobileHeader
         onMenuClick={() => {
           setShowDropDown(!showDropDown);
-          setShowMenuPage(!showMenuPage);
+          setShowPinListPage(!showPinListPage);
           setShowSearchPage(false);
           setShowFriendsPage(false);
           setShowFolderPage(false);
         }}
         setSearchKeyword={setSearchKeyword}
         searchResults={searchResults}
+        setShowMobilePinList={setShowMobilePinList}
       />
     </div>
   );
