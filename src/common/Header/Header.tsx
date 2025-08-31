@@ -20,6 +20,9 @@ type HeaderProps = {
   setSearchKeyword?: (keyword: string) => void;
   searchResults?: any[];
   setShowMobilePinList: (value: boolean) => void;
+  onLocationSelect?: (location: { address: string; lat: number; lng: number }) => void;
+  showSearchPage?: boolean;
+  setShowSearchPage?: (value: boolean) => void;
 };
 
 function Header({
@@ -30,8 +33,10 @@ function Header({
   setSearchKeyword,
   searchResults,
   setShowMobilePinList,
+  onLocationSelect,
+  showSearchPage = false,
+  setShowSearchPage,
 }: HeaderProps) {
-  const [showSearchPage, setShowSearchPage] = useState(false);
   const [showFriendsPage, setShowFriendsPage] = useState(false);
   const [showFolderPage, setShowFolderPage] = useState(false);
   const [showPinListPage, setShowPinListPage] = useState(false);
@@ -64,8 +69,16 @@ function Header({
         >
           <div
             onClick={() => {
-              setShowDropDown(!showDropDown);
-              setShowSearchPage(!showSearchPage);
+              if (setShowSearchPage) {
+                // Search가 현재 활성화되어 있으면 비활성화, 아니면 활성화
+                if (showSearchPage) {
+                  setShowSearchPage(false);
+                  setShowDropDown(false);
+                } else {
+                  setShowSearchPage(true);
+                  setShowDropDown(true);
+                }
+              }
               setShowFriendsPage(false);
               setShowFolderPage(false);
               setShowPinListPage(false);
@@ -77,9 +90,18 @@ function Header({
           </div>
           <div
             onClick={() => {
-              setShowDropDown(!showDropDown);
-              setShowFriendsPage(!showFriendsPage);
-              setShowSearchPage(false);
+              if (setShowSearchPage) {
+                setShowSearchPage(false);
+              }
+              if (!showDropDown) {
+                setShowDropDown(true);
+                setShowFriendsPage(true);
+              } else if (showFriendsPage) {
+                setShowDropDown(false);
+                setShowFriendsPage(false);
+              } else {
+                setShowFriendsPage(true);
+              }
               setShowFolderPage(false);
               setShowPinListPage(false);
             }}
@@ -90,9 +112,18 @@ function Header({
           </div>
           <div
             onClick={() => {
-              setShowDropDown(!showDropDown);
-              setShowFolderPage(!showFolderPage);
-              setShowSearchPage(false);
+              if (setShowSearchPage) {
+                setShowSearchPage(false);
+              }
+              if (!showDropDown) {
+                setShowDropDown(true);
+                setShowFolderPage(true);
+              } else if (showFolderPage) {
+                setShowDropDown(false);
+                setShowFolderPage(false);
+              } else {
+                setShowFolderPage(true);
+              }
               setShowFriendsPage(false);
               setShowPinListPage(false);
             }}
@@ -103,9 +134,18 @@ function Header({
           </div>
           <div
             onClick={() => {
-              setShowDropDown(!showDropDown);
-              setShowPinListPage(!showPinListPage);
-              setShowSearchPage(false);
+              if (setShowSearchPage) {
+                setShowSearchPage(false);
+              }
+              if (!showDropDown) {
+                setShowDropDown(true);
+                setShowPinListPage(true);
+              } else if (showPinListPage) {
+                setShowDropDown(false);
+                setShowPinListPage(false);
+              } else {
+                setShowPinListPage(true);
+              }
               setShowFriendsPage(false);
               setShowFolderPage(false);
             }}
@@ -137,6 +177,7 @@ function Header({
             <SearchPage
               onSearchKeyword={setSearchKeyword}
               searchResults={searchResults}
+              onLocationSelect={onLocationSelect}
             />
           )}
           {showPinListPage && <PinList />}

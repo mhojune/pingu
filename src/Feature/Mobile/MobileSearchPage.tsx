@@ -1,16 +1,28 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
 type MobileSearchPageProps = {
   searchResults?: any[];
+  onLocationSelect?: (location: { address: string; lat: number; lng: number }) => void;
 };
 
-function MobileSearchPage({ searchResults }: MobileSearchPageProps) {
+function MobileSearchPage({ searchResults, onLocationSelect }: MobileSearchPageProps) {
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   const toggleSearchResults = () => {
     setShowSearchResults(!showSearchResults);
+  };
+
+  const handleLocationSelect = (place: any) => {
+    if (onLocationSelect) {
+      const location = {
+        address: place.place_name,
+        lat: parseFloat(place.y),
+        lng: parseFloat(place.x),
+      };
+      onLocationSelect(location);
+    }
   };
 
   if (!searchResults || searchResults.length === 0) {
@@ -40,30 +52,41 @@ function MobileSearchPage({ searchResults }: MobileSearchPageProps) {
             <ul className="space-y-2">
               {searchResults.map((place, index) => (
                 <li key={index} className="item bg-white p-3 rounded-lg shadow-sm border">
-                  <div className="flex items-start">
-                    <div className="w-6 h-6 mr-3 flex-shrink-0 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                      {index + 1}
-                    </div>
-                    <div className="info flex-1">
-                      <h5 className="font-semibold text-lg mb-1">{place.place_name}</h5>
-                      {place.road_address_name ? (
-                        <>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start flex-1">
+                      <div className="w-6 h-6 mr-3 flex-shrink-0 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        {index + 1}
+                      </div>
+                      <div className="info flex-1">
+                        <h5 className="font-semibold text-lg mb-1">{place.place_name}</h5>
+                        {place.road_address_name ? (
+                          <>
+                            <span className="block text-sm text-gray-700 mb-1">
+                              {place.road_address_name}
+                            </span>
+                            <span className="block text-sm text-gray-500 mb-1">
+                              {place.address_name}
+                            </span>
+                          </>
+                        ) : (
                           <span className="block text-sm text-gray-700 mb-1">
-                            {place.road_address_name}
-                          </span>
-                          <span className="block text-sm text-gray-500 mb-1">
                             {place.address_name}
                           </span>
-                        </>
-                      ) : (
-                        <span className="block text-sm text-gray-700 mb-1">
-                          {place.address_name}
-                        </span>
-                      )}
-                      {place.phone && (
-                        <span className="block text-sm text-blue-600">{place.phone}</span>
-                      )}
+                        )}
+                        {place.phone && (
+                          <span className="block text-sm text-blue-600">
+                            {place.phone}
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    <button
+                      onClick={() => handleLocationSelect(place)}
+                      className="ml-3 px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 text-sm"
+                    >
+                      <FontAwesomeIcon icon={faPlus} className="text-xs" />
+                      추가
+                    </button>
                   </div>
                 </li>
               ))}

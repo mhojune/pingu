@@ -25,5 +25,14 @@ export default defineConfig(({ mode }) => ({
   // 개발 서버 설정
   server: {
     hmr: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        // 필요 시 백엔드 경로에 /api 프리픽스가 없다면 주석 해제
+        // rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 }));

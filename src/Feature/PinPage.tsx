@@ -6,7 +6,16 @@ import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons
 import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons";
 import { useState } from "react";
 
-const PinPage = () => {
+type PinPageProps = {
+  selectedLocation: {
+    address: string;
+    lat: number;
+    lng: number;
+  } | null;
+  onLocationEdit: () => void;
+};
+
+const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
   const [showBookMark, setShowBookMark] = useState(false);
 
   return (
@@ -83,15 +92,16 @@ const PinPage = () => {
                 className="text-black md:text-3xl text-xl mr-2 flex-shrink-0"
               />
               <div
-                className="md:text-2xl text-xl underline underline-offset-7 overflow-x-auto whitespace-nowrap"
+                className="md:text-2xl text-xl underline underline-offset-7 overflow-x-auto whitespace-nowrap cursor-pointer hover:text-blue-600 transition-colors"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 onWheel={(e) => {
                   e.preventDefault();
                   const container = e.currentTarget;
                   container.scrollLeft += e.deltaY;
                 }}
+                onClick={onLocationEdit}
               >
-                위치를 입력해 주세요
+                {selectedLocation ? selectedLocation.address : "위치를 입력해 주세요"}
               </div>
             </div>
           </div>

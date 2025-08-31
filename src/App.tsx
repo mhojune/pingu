@@ -16,6 +16,34 @@ function App() {
   const [showMobilePinList, setShowMobilePinList] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchPage, setShowSearchPage] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{
+    address: string;
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  // 위치 선택 핸들러
+  const handleLocationSelect = (location: {
+    address: string;
+    lat: number;
+    lng: number;
+  }) => {
+    setSelectedLocation(location);
+    setShowPinPage(true);
+    setShowDropDown(false);
+    setShowSearchPage(false);
+
+    // 콘솔에 위도, 경도 출력
+    console.log(`위도: ${location.lat}, 경도: ${location.lng}`);
+  };
+
+  // 위치 편집 핸들러
+  const handleLocationEdit = () => {
+    setShowPinPage(false);
+    setShowDropDown(true);
+    setShowSearchPage(true);
+  };
 
   // 디버깅을 위한 useEffect
   useEffect(() => {
@@ -39,14 +67,25 @@ function App() {
           setSearchKeyword={setSearchKeyword}
           searchResults={searchResults}
           setShowMobilePinList={setShowMobilePinList}
+          onLocationSelect={handleLocationSelect}
+          showSearchPage={showSearchPage}
+          setShowSearchPage={setShowSearchPage}
         />
       </div>
       <div className="md:flex-9 bg-white z-0 flex-9 relative">
         <Background showPinPage={showPinPage}>
           <Map searchKeyword={searchKeyword} onSearchResults={setSearchResults} />
           <MobileDropDown isVisible={showMobileDropDown} />
-          {showPinPage && <PinPage />}
-          <MobileSearchPage searchResults={searchResults} />
+          {showPinPage && (
+            <PinPage
+              selectedLocation={selectedLocation}
+              onLocationEdit={handleLocationEdit}
+            />
+          )}
+          <MobileSearchPage
+            searchResults={searchResults}
+            onLocationSelect={handleLocationSelect}
+          />
         </Background>
 
         {/* MobilePinList를 Background 밖에 배치하되 같은 컨테이너 안에 */}
