@@ -5,11 +5,13 @@ import {
   faFolder,
   faBars,
   faPlus,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import DropDown from "./DropDown";
 import SearchPage from "../../Feature/SearchPage";
 import MobileHeader from "./MobileHeader";
 import { useState } from "react";
+import Modal from "../Modal";
 import PinList from "../../Feature/PinList";
 
 type HeaderProps = {
@@ -40,6 +42,13 @@ function Header({
   const [showFriendsPage, setShowFriendsPage] = useState(false);
   const [showFolderPage, setShowFolderPage] = useState(false);
   const [showPinListPage, setShowPinListPage] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [loginId, setLoginId] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signupId, setSignupId] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
 
   return (
     <div className="flex w-full h-full relative">
@@ -154,6 +163,13 @@ function Header({
             <FontAwesomeIcon icon={faBars} className="mr-5" />
             {!showDropDown && !showPinPage && <span>PinList</span>}
           </div>
+          <div
+            onClick={() => setShowUserModal(true)}
+            className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
+          >
+            <FontAwesomeIcon icon={faUser} className="mr-5" />
+            {!showDropDown && !showPinPage && <span>User</span>}
+          </div>
         </div>
         <div className="flex justify-center items-center w-full mt-auto">
           <FontAwesomeIcon
@@ -183,6 +199,98 @@ function Header({
           {showPinListPage && <PinList />}
         </DropDown>
       </div>
+
+      {/* User Login Modal */}
+      <Modal
+        isOpen={showUserModal}
+        onClose={() => setShowUserModal(false)}
+        title="로그인"
+      >
+        <div className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="아이디"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="비밀번호"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+          />
+          <button
+            className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 transition"
+            onClick={() => {
+              // TODO: 실제 로그인 로직 연동
+              setShowUserModal(false);
+            }}
+          >
+            로그인
+          </button>
+          <div className="text-center text-sm text-gray-500">또는</div>
+          <button
+            className="w-full rounded border border-gray-300 py-2 hover:bg-gray-50 transition"
+            onClick={() => {
+              setShowUserModal(false);
+              setShowSignupModal(true);
+            }}
+          >
+            회원가입
+          </button>
+        </div>
+      </Modal>
+
+      {/* Signup Modal */}
+      <Modal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        title="회원가입"
+      >
+        <div className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="아이디"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={signupId}
+            onChange={(e) => setSignupId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="비밀번호"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={signupPassword}
+            onChange={(e) => setSignupPassword(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="비밀번호 확인"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={signupPasswordConfirm}
+            onChange={(e) => setSignupPasswordConfirm(e.target.value)}
+          />
+          <button
+            className="w-full rounded bg-green-600 py-2 text-white hover:bg-green-700 transition"
+            onClick={() => {
+              // TODO: 실제 회원가입 로직 연동 및 검증
+              setShowSignupModal(false);
+            }}
+          >
+            회원가입 완료
+          </button>
+          <button
+            className="w-full rounded border border-gray-300 py-2 hover:bg-gray-50 transition"
+            onClick={() => {
+              setShowSignupModal(false);
+              setShowUserModal(true);
+            }}
+          >
+            로그인으로 돌아가기
+          </button>
+        </div>
+      </Modal>
 
       {/* Mobile */}
       <MobileHeader
