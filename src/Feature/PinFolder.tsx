@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faFolder } from "@fortawesome/free-solid-svg-icons";
+import { createFolder } from "../api/folders";
 
 type Folder = {
   id: number;
@@ -15,21 +16,36 @@ const PinFolder = () => {
   const [newFolderName, setNewFolderName] = useState("");
 
   // 폴더 생성
-  const handleCreateFolder = () => {
+  const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
       alert("폴더 이름을 입력해주세요.");
       return;
     }
 
-    const newFolder: Folder = {
-      id: Date.now(), // 임시 ID
-      name: newFolderName,
-      postCount: 0,
-    };
+    try {
+      // TODO: 실제 로그인 사용자 ID 연동 필요
+      const userId = 1;
+      const folderId = await createFolder({
+        id: 0,
+        name: newFolderName.trim(),
+        userId,
+        postIds: [],
+      });
 
-    setFolders([...folders, newFolder]);
-    setNewFolderName("");
-    setShowCreateModal(false);
+      const newFolder: Folder = {
+        id: folderId || Date.now(),
+        name: newFolderName.trim(),
+        postCount: 0,
+      };
+
+      setFolders([...folders, newFolder]);
+      setNewFolderName("");
+      setShowCreateModal(false);
+      alert("폴더가 생성되었습니다.");
+    } catch (e) {
+      console.error(e);
+      alert("폴더 생성에 실패했습니다.");
+    }
   };
 
   return (

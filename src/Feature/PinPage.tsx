@@ -4,7 +4,8 @@ import PhotoFrame from "../common/PhotoFrame";
 import { faTrashCan, faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { createPost } from "../api/posts";
 
 type PinPageProps = {
   selectedLocation: {
@@ -17,6 +18,14 @@ type PinPageProps = {
 
 const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
   const [showBookMark, setShowBookMark] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [dateStr, setDateStr] = useState("");
+  const isSubmittable = useMemo(
+    () => title.trim().length > 0 && content.trim().length > 0,
+    [title, content]
+  );
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-white z-10 flex flex-col items-center">
@@ -24,7 +33,7 @@ const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
         className="w-full max-w-7xl px-5 sm:px-10 md:px-20 lg:px-40 xl:px-60 flex flex-col items-center overflow-y-scroll"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <PhotoFrame />
+        <PhotoFrame files={files} onFilesChange={setFiles} />
         <div className="w-full flex flex-col items-center md:px-15">
           <div className="w-full flex justify-end md:text-4xl text-2xl gap-5">
             <FontAwesomeIcon icon={faPencil} className="cursor-pointer" />
@@ -57,6 +66,8 @@ const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
                 placeholder="핀 제목을 입력해주세요"
                 id="title"
                 className="w-full outline-none focus:outline-none md:text-xl text-lg mr-4"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
               <FontAwesomeIcon
                 icon={showBookMark ? faSolidBookmark : faRegularBookmark}
@@ -84,6 +95,8 @@ const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
                   position: "relative",
                   zIndex: 2,
                 }}
+                value={dateStr}
+                onChange={(e) => setDateStr(e.target.value)}
               />
             </div>
             <div className="flex flex-1 items-center w-1/2">
@@ -115,10 +128,66 @@ const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
                 id="content"
                 className="w-full min-h-32 resize-none outline-none focus:outline-none md:text-xl text-lg"
                 rows={6}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
               />
             </div>
           </div>
-          {/*  */}
+          <div className="w-full flex justify-end md:mb-10 mb-6">
+            <button
+              className={`px-5 py-2 rounded-md text-white md:text-xl text-lg ${
+                isSubmittable ? "bg-black" : "bg-gray-400 cursor-not-allowed"
+              }`}
+              disabled={!isSubmittable}
+              onClick={async () => {
+                const form = new FormData();
+                const payload = {
+                  title,
+                  content,
+                  // TODO: 실제 로그인 사용자 ID 연동 필요
+                  userId: 1,
+                  longitude: selectedLocation?.lng ?? null,
+                  latitude: selectedLocation?.lat ?? null,
+                };
+                form.append(
+                  "request",
+                  new Blob([JSON.stringify(payload)], { type: "application/json" })
+                );
+                files.forEach((f) => form.append("files", f));
+                // 전송 데이터 콘솔 확인
+                console.log("[PinPage] payload:", payload);
+                console.log(
+                  "[PinPage] files:",
+                  files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
+                );
+                const fdPreview: Record<string, unknown[]> = {};
+                for (const [key, value] of form.entries()) {
+                  if (!fdPreview[key]) fdPreview[key] = [];
+                  if (value instanceof File) {
+                    fdPreview[key].push({
+                      name: value.name,
+                      type: value.type,
+                      size: value.size,
+                    });
+                  } else {
+                    fdPreview[key].push(
+                      typeof value === "string" ? value : "(non-string value)"
+                    );
+                  }
+                }
+                console.log("[PinPage] FormData entries:", fdPreview);
+                try {
+                  await createPost(form);
+                  alert("등록되었습니다.");
+                } catch (e) {
+                  console.error(e);
+                  alert("등록에 실패했습니다.");
+                }
+              }}
+            >
+              제출
+            </button>
+          </div>
         </div>
       </div>
     </div>

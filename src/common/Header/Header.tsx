@@ -14,6 +14,7 @@ import { useState } from "react";
 import Modal from "../Modal";
 import PinList from "../../Feature/PinList";
 import PinFolder from "../../Feature/PinFolder";
+import { createUser } from "../../api/users";
 
 type HeaderProps = {
   setShowPinPage: (value: boolean) => void;
@@ -275,9 +276,38 @@ function Header({
           />
           <button
             className="w-full rounded bg-green-600 py-2 text-white hover:bg-green-700 transition"
-            onClick={() => {
-              // TODO: 실제 회원가입 로직 연동 및 검증
-              setShowSignupModal(false);
+            onClick={async () => {
+              // 간단 유효성 검사
+              if (!signupId.trim()) {
+                alert("아이디를 입력해주세요.");
+                return;
+              }
+              if (!signupPassword) {
+                alert("비밀번호를 입력해주세요.");
+                return;
+              }
+              if (signupPassword !== signupPasswordConfirm) {
+                alert("비밀번호가 일치하지 않습니다.");
+                return;
+              }
+
+              try {
+                // 백엔드 UserDTO 스키마에 맞춰 최소 필드 구성
+                await createUser({
+                  userId: 0,
+                  username: signupId.trim(),
+                  password: signupPassword,
+                  phoneNumber: "",
+                  regDate: new Date().toISOString(),
+                  modDate: new Date().toISOString(),
+                });
+                alert("회원가입이 완료되었습니다. 로그인해 주세요.");
+                setShowSignupModal(false);
+                setShowUserModal(true);
+              } catch (e) {
+                console.error(e);
+                alert("회원가입에 실패했습니다.");
+              }
             }}
           >
             회원가입 완료
