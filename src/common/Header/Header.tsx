@@ -13,6 +13,7 @@ import MobileHeader from "./MobileHeader";
 import { useState } from "react";
 import Modal from "../Modal";
 import PinList from "../../Feature/PinList";
+import PinFolder from "../../Feature/PinFolder";
 
 type HeaderProps = {
   setShowPinPage: (value: boolean) => void;
@@ -197,6 +198,7 @@ function Header({
             />
           )}
           {showPinListPage && <PinList />}
+          {showFolderPage && <PinFolder />}
         </DropDown>
       </div>
 
