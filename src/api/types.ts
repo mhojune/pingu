@@ -20,7 +20,7 @@ export type PageResultDTO<T> = {
 
 // User
 export type UserDTO = {
-  userId: number;
+  userId?: number; // 회원가입 시에는 선택적, 조회 시에는 필수
   username: string;
   password: string;
   phoneNumber: string;

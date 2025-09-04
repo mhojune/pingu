@@ -10,12 +10,14 @@ import {
 import DropDown from "./DropDown";
 import SearchPage from "../../Feature/SearchPage";
 import MobileHeader from "./MobileHeader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../Modal";
 import PinList from "../../Feature/PinList";
 import PinFolder from "../../Feature/PinFolder";
 import FriendList from "../../Feature/FriendList";
-import { createUser } from "../../api/users";
+import { createUser, getUserById } from "../../api/users";
+import { login, logout } from "../../api/auth";
+import type { UserDTO } from "../../api/types";
 
 type HeaderProps = {
   setShowPinPage: (value: boolean) => void;
@@ -53,6 +55,61 @@ function Header({
   const [signupPassword, setSignupPassword] = useState("");
   const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
   const [signupPhoneNumber, setSignupPhoneNumber] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserDTO | null>(null);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+
+  // 컴포넌트 마운트 시 localStorage에서 로그인 상태 확인
+  useEffect(() => {
+    const savedLoginState = localStorage.getItem("isLoggedIn");
+    const savedUserId = localStorage.getItem("userId");
+    
+    if (savedLoginState === "true" && savedUserId) {
+      const userId = parseInt(savedUserId, 10);
+      setIsLoggedIn(true);
+      setCurrentUserId(userId);
+      // 사용자 정보 로드
+      loadUserInfo(userId);
+    }
+  }, []);
+
+  // 사용자 정보 로드 함수
+  const loadUserInfo = async (userId: number) => {
+    try {
+      console.log("사용자 정보 요청 - userId:", userId);
+      const userInfo = await getUserById(userId);
+      console.log("사용자 정보 응답:", userInfo);
+      setCurrentUser(userInfo);
+      console.log("사용자 정보 설정 완료");
+    } catch (error) {
+      console.error("사용자 정보 로드 실패:", error);
+      console.error("에러 타입:", typeof error);
+      console.error("에러 메시지:", error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  // 로그아웃 함수
+  const handleLogout = async () => {
+    try {
+      await logout();
+      
+      // localStorage에서 로그인 정보 제거
+      localStorage.removeItem("userId");
+      localStorage.removeItem("isLoggedIn");
+      
+      // 상태 초기화
+      setIsLoggedIn(false);
+      setCurrentUserId(null);
+      setCurrentUser(null);
+      setShowUserInfoModal(false);
+      
+      alert("로그아웃되었습니다.");
+    } catch (error) {
+      console.error("로그아웃 에러:", error);
+      alert("로그아웃에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="flex w-full h-full relative">
@@ -168,11 +225,21 @@ function Header({
             {!showDropDown && !showPinPage && <span>PinList</span>}
           </div>
           <div
-            onClick={() => setShowUserModal(true)}
+            onClick={() => {
+              if (isLoggedIn) {
+                // 사용자 정보 모달 표시
+                setShowUserInfoModal(true);
+              } else {
+                // 로그인 모달 표시
+                setShowUserModal(true);
+              }
+            }}
             className="cursor-pointer transition-all duration-300 ease-in-out hover:text-gray-700"
           >
             <FontAwesomeIcon icon={faUser} className="mr-5" />
-            {!showDropDown && !showPinPage && <span>User</span>}
+            {!showDropDown && !showPinPage && (
+              <span>{isLoggedIn ? "사용자 정보" : "User"}</span>
+            )}
           </div>
         </div>
         <div className="flex justify-center items-center w-full mt-auto">
@@ -229,9 +296,61 @@ function Header({
           />
           <button
             className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 transition"
-            onClick={() => {
-              // TODO: 실제 로그인 로직 연동
-              setShowUserModal(false);
+            onClick={async () => {
+              // 유효성 검사
+              if (!loginId.trim()) {
+                alert("아이디를 입력해주세요.");
+                return;
+              }
+              if (!loginPassword) {
+                alert("비밀번호를 입력해주세요.");
+                return;
+              }
+
+              try {
+                console.log("로그인 시도:", { username: loginId.trim() });
+                
+                const response = await login({
+                  username: loginId.trim(),
+                  password: loginPassword,
+                });
+
+                console.log("로그인 응답:", response);
+                console.log("응답 타입:", typeof response);
+
+                // 백엔드에서 사용자 ID만 반환하는 경우 처리
+                if (typeof response === 'number' && response > 0) {
+                  const userId = response;
+                  console.log("로그인 성공, 사용자 ID:", userId);
+                  
+                  // localStorage에 유저 아이디 저장
+                  localStorage.setItem("userId", userId.toString());
+                  localStorage.setItem("isLoggedIn", "true");
+                  
+                  // 상태 업데이트
+                  setIsLoggedIn(true);
+                  setCurrentUserId(userId);
+                  
+                  // 사용자 정보 로드
+                  console.log("사용자 정보 로드 시작");
+                  await loadUserInfo(userId);
+                  
+                  // 폼 초기화 및 모달 닫기
+                  setLoginId("");
+                  setLoginPassword("");
+                  setShowUserModal(false);
+                  
+                  alert("로그인 성공!");
+                } else {
+                  console.log("로그인 실패 - 응답:", response);
+                  alert("로그인에 실패했습니다.");
+                }
+              } catch (error) {
+                console.error("로그인 에러 상세:", error);
+                console.error("에러 타입:", typeof error);
+                console.error("에러 메시지:", error instanceof Error ? error.message : String(error));
+                alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+              }
             }}
           >
             로그인
@@ -246,6 +365,52 @@ function Header({
           >
             회원가입
           </button>
+        </div>
+      </Modal>
+
+      {/* User Info Modal */}
+      <Modal
+        isOpen={showUserInfoModal}
+        onClose={() => setShowUserInfoModal(false)}
+        title="사용자 정보"
+      >
+        <div className="flex flex-col gap-4">
+          {currentUser ? (
+            <>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-semibold">사용자 ID:</span>
+                  <span>{currentUser.userId}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-semibold">사용자명:</span>
+                  <span>{currentUser.username}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-semibold">전화번호:</span>
+                  <span>{currentUser.phoneNumber}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-semibold">가입일:</span>
+                  <span>{new Date(currentUser.regDate).toLocaleDateString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-semibold">수정일:</span>
+                  <span>{new Date(currentUser.modDate).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <button
+                className="w-full rounded bg-red-600 py-2 text-white hover:bg-red-700 transition"
+                onClick={handleLogout}
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <div className="text-center text-gray-500">
+              사용자 정보를 불러오는 중...
+            </div>
+          )}
         </div>
       </Modal>
 
@@ -307,8 +472,8 @@ function Header({
 
               try {
                 // 백엔드 UserDTO 스키마에 맞춰 최소 필드 구성
+                // userId는 서버에서 자동 생성되므로 제외
                 await createUser({
-                  userId: 0,
                   username: signupId.trim(),
                   password: signupPassword,
                   phoneNumber: signupPhoneNumber.trim(),
