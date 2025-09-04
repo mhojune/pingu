@@ -14,6 +14,7 @@ import { useState } from "react";
 import Modal from "../Modal";
 import PinList from "../../Feature/PinList";
 import PinFolder from "../../Feature/PinFolder";
+import FriendList from "../../Feature/FriendList";
 import { createUser } from "../../api/users";
 
 type HeaderProps = {
@@ -51,6 +52,7 @@ function Header({
   const [signupId, setSignupId] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
+  const [signupPhoneNumber, setSignupPhoneNumber] = useState("");
 
   return (
     <div className="flex w-full h-full relative">
@@ -198,6 +200,7 @@ function Header({
               onLocationSelect={onLocationSelect}
             />
           )}
+          {showFriendsPage && <FriendList />}
           {showPinListPage && <PinList />}
           {showFolderPage && <PinFolder />}
         </DropDown>
@@ -274,6 +277,13 @@ function Header({
             value={signupPasswordConfirm}
             onChange={(e) => setSignupPasswordConfirm(e.target.value)}
           />
+          <input
+            type="tel"
+            placeholder="핸드폰 번호"
+            className="w-full rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={signupPhoneNumber}
+            onChange={(e) => setSignupPhoneNumber(e.target.value)}
+          />
           <button
             className="w-full rounded bg-green-600 py-2 text-white hover:bg-green-700 transition"
             onClick={async () => {
@@ -290,6 +300,10 @@ function Header({
                 alert("비밀번호가 일치하지 않습니다.");
                 return;
               }
+              if (!signupPhoneNumber.trim()) {
+                alert("핸드폰 번호를 입력해주세요.");
+                return;
+              }
 
               try {
                 // 백엔드 UserDTO 스키마에 맞춰 최소 필드 구성
@@ -297,7 +311,7 @@ function Header({
                   userId: 0,
                   username: signupId.trim(),
                   password: signupPassword,
-                  phoneNumber: "",
+                  phoneNumber: signupPhoneNumber.trim(),
                   regDate: new Date().toISOString(),
                   modDate: new Date().toISOString(),
                 });
@@ -317,6 +331,11 @@ function Header({
             onClick={() => {
               setShowSignupModal(false);
               setShowUserModal(true);
+              // 폼 초기화
+              setSignupId("");
+              setSignupPassword("");
+              setSignupPasswordConfirm("");
+              setSignupPhoneNumber("");
             }}
           >
             로그인으로 돌아가기

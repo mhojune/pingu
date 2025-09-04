@@ -4,7 +4,7 @@ import PhotoFrame from "../common/PhotoFrame";
 import { faTrashCan, faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { createPost } from "../api/posts";
 
 type PinPageProps = {
@@ -14,14 +14,31 @@ type PinPageProps = {
     lng: number;
   } | null;
   onLocationEdit: () => void;
+  pinPageState: {
+    title: string;
+    content: string;
+    dateStr: string;
+    files: File[];
+    showBookMark: boolean;
+  };
+  setPinPageState: React.Dispatch<React.SetStateAction<{
+    title: string;
+    content: string;
+    dateStr: string;
+    files: File[];
+    showBookMark: boolean;
+  }>>;
 };
 
-const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
-  const [showBookMark, setShowBookMark] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [dateStr, setDateStr] = useState("");
+const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageState }: PinPageProps) => {
+  const { title, content, dateStr, files, showBookMark } = pinPageState;
+  
+  const setTitle = (value: string) => setPinPageState(prev => ({ ...prev, title: value }));
+  const setContent = (value: string) => setPinPageState(prev => ({ ...prev, content: value }));
+  const setDateStr = (value: string) => setPinPageState(prev => ({ ...prev, dateStr: value }));
+  const setFiles = (value: File[]) => setPinPageState(prev => ({ ...prev, files: value }));
+  const setShowBookMark = (value: boolean) => setPinPageState(prev => ({ ...prev, showBookMark: value }));
+  
   const isSubmittable = useMemo(
     () => title.trim().length > 0 && content.trim().length > 0,
     [title, content]
@@ -179,6 +196,14 @@ const PinPage = ({ selectedLocation, onLocationEdit }: PinPageProps) => {
                 try {
                   await createPost(form);
                   alert("등록되었습니다.");
+                  // 제출 성공 후 상태 초기화
+                  setPinPageState({
+                    title: "",
+                    content: "",
+                    dateStr: "",
+                    files: [],
+                    showBookMark: false
+                  });
                 } catch (e) {
                   console.error(e);
                   alert("등록에 실패했습니다.");

@@ -22,6 +22,15 @@ function App() {
     lat: number;
     lng: number;
   } | null>(null);
+  
+  // PinPage 상태를 App에서 관리
+  const [pinPageState, setPinPageState] = useState({
+    title: "",
+    content: "",
+    dateStr: "",
+    files: [] as File[],
+    showBookMark: false
+  });
 
   // 위치 선택 핸들러
   const handleLocationSelect = (location: {
@@ -80,6 +89,8 @@ function App() {
             <PinPage
               selectedLocation={selectedLocation}
               onLocationEdit={handleLocationEdit}
+              pinPageState={pinPageState}
+              setPinPageState={setPinPageState}
             />
           )}
           <MobileSearchPage
