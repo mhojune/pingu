@@ -56,6 +56,7 @@ export type PostResponseDTO = {
   userId: number;
   title: string;
   content: string;
+  regDate: string;
   likeCount: number;
   viewCount: number;
   longitude: number; // 백엔드에서 null -> 0 치환됨

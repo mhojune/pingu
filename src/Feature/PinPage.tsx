@@ -1,9 +1,11 @@
-import { faPencil, faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PhotoFrame from "../common/PhotoFrame";
-import { faTrashCan, faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
-import { useMemo, useState, useEffect } from "react";
-import { createPost } from "../api/posts";
+import { faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { createPost, updatePost } from "../api/posts";
+import { getUserById } from "../api/users";
+import type { PostResponseDTO } from "../api/types";
 
 type PinPageProps = {
   selectedLocation: {
@@ -24,25 +26,72 @@ type PinPageProps = {
     dateStr: string;
     files: File[];
   }>>;
+  selectedPost?: PostResponseDTO | null;
+  isEditMode?: boolean;
+  onSuccess?: () => void;
 };
 
-const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageState }: PinPageProps) => {
+const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageState, selectedPost, isEditMode = false, onSuccess }: PinPageProps) => {
   const { title, content, dateStr, files } = pinPageState;
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>("");
   
-  const setTitle = (value: string) => setPinPageState(prev => ({ ...prev, title: value }));
-  const setContent = (value: string) => setPinPageState(prev => ({ ...prev, content: value }));
-  const setDateStr = (value: string) => setPinPageState(prev => ({ ...prev, dateStr: value }));
-  const setFiles = (value: File[]) => setPinPageState(prev => ({ ...prev, files: value }));
+  const setTitle = useCallback((value: string) => setPinPageState(prev => ({ ...prev, title: value })), [setPinPageState]);
+  const setContent = useCallback((value: string) => setPinPageState(prev => ({ ...prev, content: value })), [setPinPageState]);
+  const setDateStr = useCallback((value: string) => setPinPageState(prev => ({ ...prev, dateStr: value })), [setPinPageState]);
+  const setFiles = useCallback((value: File[]) => setPinPageState(prev => ({ ...prev, files: value })), [setPinPageState]);
 
-  // localStorage에서 현재 사용자 ID 로드
+  // localStorage에서 현재 사용자 ID 로드 및 사용자 정보 가져오기
   useEffect(() => {
     const savedUserId = localStorage.getItem("userId");
     if (savedUserId) {
       const userId = parseInt(savedUserId, 10);
       setCurrentUserId(userId);
+      
+      // 사용자 정보 가져오기
+      getUserById(userId)
+        .then((userInfo) => {
+          setCurrentUserName(userInfo.username || "사용자");
+        })
+        .catch((error) => {
+          console.error("사용자 정보 로드 실패:", error);
+          setCurrentUserName("사용자");
+        });
     }
   }, []);
+
+  // content에서 날짜와 내용을 분리하는 함수
+  const parseContent = (content: string) => {
+    // 📅 날짜\n\n내용 또는 📅 날짜\n내용 패턴 모두 처리
+    const dateMatch = content.match(/^📅 (.+?)\n\n?(.+)$/s);
+    
+    if (dateMatch) {
+      return {
+        date: dateMatch[1].trim(),
+        content: dateMatch[2].trim()
+      };
+    }
+    return {
+      date: null,
+      content: content
+    };
+  };
+
+  // 선택된 핀의 내용을 pinPageState에 설정 (초기 로드 시에만)
+  useEffect(() => {
+    if (selectedPost && isEditMode && pinPageState.title === "" && pinPageState.content === "") {
+      console.log("PinPage - 초기 데이터 로드:", selectedPost);
+      const { date: extractedDate, content: extractedContent } = parseContent(selectedPost.content);
+      
+      setPinPageState({
+        title: selectedPost.title,
+        content: extractedContent, // 날짜를 제외한 내용만
+        dateStr: extractedDate || "", // 추출된 날짜
+        files: [] // 파일은 선택된 핀에서 가져올 수 없으므로 빈 배열
+      });
+    }
+  }, [selectedPost, isEditMode, setPinPageState, pinPageState.title, pinPageState.content]);
+
   
   const isSubmittable = useMemo(
     () => title.trim().length > 0 && content.trim().length > 0,
@@ -50,22 +99,22 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
   );
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-white z-10 flex flex-col items-center">
+    <div className="absolute top-0 left-0 w-full h-full bg-white z-20 flex flex-col items-center">
       <div
         className="w-full max-w-7xl px-5 sm:px-10 md:px-20 lg:px-40 xl:px-60 flex flex-col items-center overflow-y-scroll"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <PhotoFrame files={files} onFilesChange={setFiles} />
+        <PhotoFrame 
+          files={files} 
+          onFilesChange={setFiles} 
+          existingImageUrl={isEditMode && selectedPost?.files && selectedPost.files.length > 0 ? selectedPost.files[0].url : undefined}
+        />
         <div className="w-full flex flex-col items-center md:px-15">
-          <div className="w-full flex justify-end md:text-4xl text-2xl gap-5">
-            <FontAwesomeIcon icon={faPencil} className="cursor-pointer" />
-            <FontAwesomeIcon icon={faTrashCan} className="cursor-pointer" />
-          </div>
           <div className="w-full flex items-center gap-3 mb-5">
             <div className="md:w-14 md:h-14 w-10 h-10 rounded-full flex items-center justify-center bg-gray-300">
               <FontAwesomeIcon icon={faImage} className="text-gray-500" />
             </div>
-            <span className="md:text-3xl text-2xl">This is name space</span>
+            <span className="md:text-3xl text-2xl">{currentUserName || "사용자"}</span>
           </div>
           <div className="w-full flex flex-col gap-1 md:mb-7 mb-5">
             <label htmlFor="title" className="md:text-xl text-lg">
@@ -150,20 +199,31 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
                 }
 
                 try {
+                  // 사용자 ID 유효성 확인
+                  try {
+                    const userInfo = await getUserById(currentUserId);
+                    console.log("사용자 ID 유효성 확인 완료:", currentUserId, userInfo);
+                  } catch (userError) {
+                    console.error("사용자 ID 유효성 확인 실패:", userError);
+                    alert("유효하지 않은 사용자입니다. 다시 로그인해주세요.");
+                    return;
+                  }
                   const form = new FormData();
-                  const payload = {
-                    title,
-                    content,
-                    userId: currentUserId,
-                    longitude: selectedLocation?.lng ?? null,
-                    latitude: selectedLocation?.lat ?? null,
-                  };
-                  form.append(
-                    "request",
-                    new Blob([JSON.stringify(payload)], { type: "application/json" })
-                  );
                   
-                  // 파일이 있을 때만 추가 (백엔드 업로드 디렉토리 문제 해결 전까지)
+                  // 날짜가 있으면 content에 포함
+                  const contentWithDate = dateStr 
+                    ? `📅 ${dateStr}\n\n${content}`
+                    : content;
+                  
+                  // curl 예제와 같은 방식으로 개별 필드 추가
+                  form.append("userId", currentUserId.toString());
+                  form.append("title", title);
+                  form.append("content", contentWithDate);
+                  form.append("longitude", selectedLocation?.lng?.toString() ?? "");
+                  form.append("latitude", selectedLocation?.lat?.toString() ?? "");
+                  form.append("scope", "PUBLIC");
+                  
+                  // 파일이 있을 때만 추가
                   if (files.length > 0) {
                     console.log("파일 업로드 시도:", files.map((f) => ({ name: f.name, type: f.type, size: f.size })));
                     files.forEach((f) => form.append("files", f));
@@ -172,8 +232,6 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
                   }
 
                   // 전송 데이터 콘솔 확인
-                  console.log("[PinPage] payload:", payload);
-                  
                   const fdPreview: Record<string, unknown[]> = {};
                   for (const [key, value] of form.entries()) {
                     if (!fdPreview[key]) fdPreview[key] = [];
@@ -191,8 +249,13 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
                   }
                   console.log("[PinPage] FormData entries:", fdPreview);
 
-                  await createPost(form);
-                  alert("등록되었습니다.");
+                  if (isEditMode && selectedPost) {
+                    await updatePost(selectedPost.postId, form);
+                    alert("수정되었습니다.");
+                  } else {
+                    await createPost(form);
+                    alert("등록되었습니다.");
+                  }
                   
                   // 제출 성공 후 상태 초기화
                   setPinPageState({
@@ -201,6 +264,11 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
                     dateStr: "",
                     files: []
                   });
+                  
+                  // 상위 컴포넌트에 성공 알림
+                  if (onSuccess) {
+                    onSuccess();
+                  }
                 } catch (e) {
                   console.error("게시글 등록 실패:", e);
                   
@@ -215,7 +283,7 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
                 }
               }}
             >
-              제출
+              {isEditMode ? "수정" : "제출"}
             </button>
           </div>
         </div>

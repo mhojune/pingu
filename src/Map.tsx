@@ -9,9 +9,10 @@ declare global {
 type MapProps = {
   searchKeyword?: string;
   onSearchResults?: (results: any[]) => void;
+  loginRefreshTrigger?: number;
 };
 
-const Map = ({ searchKeyword, onSearchResults }: MapProps) => {
+const Map = ({ searchKeyword, onSearchResults, loginRefreshTrigger = 0 }: MapProps) => {
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const infowindowRef = useRef<any>(null);
@@ -75,6 +76,19 @@ const Map = ({ searchKeyword, onSearchResults }: MapProps) => {
       searchPlaces(searchKeyword);
     }
   }, [searchKeyword]);
+
+  // 로그인 상태 변경 시 지도 초기화
+  useEffect(() => {
+    if (loginRefreshTrigger && loginRefreshTrigger > 0) {
+      console.log("로그인 상태 변경 감지 - 지도 초기화");
+      // 기존 마커 제거
+      removeMarker();
+      // 검색 결과 초기화
+      if (onSearchResults) {
+        onSearchResults([]);
+      }
+    }
+  }, [loginRefreshTrigger, onSearchResults]);
 
   // 장소 검색 함수
   const searchPlaces = (keyword: string) => {

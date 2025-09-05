@@ -8,6 +8,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import DropDown from "./DropDown";
+import type { PostResponseDTO } from "../../api/types";
 import SearchPage from "../../Feature/SearchPage";
 import MobileHeader from "./MobileHeader";
 import { useState, useEffect } from "react";
@@ -25,11 +26,14 @@ type HeaderProps = {
   showDropDown: boolean;
   setShowDropDown: (value: boolean) => void;
   setSearchKeyword?: (keyword: string) => void;
-  searchResults?: any[];
+  searchResults?: unknown[];
   setShowMobilePinList: (value: boolean) => void;
   onLocationSelect?: (location: { address: string; lat: number; lng: number }) => void;
   showSearchPage?: boolean;
   setShowSearchPage?: (value: boolean) => void;
+  onPinSelect?: (post: PostResponseDTO) => void;
+  refreshTrigger?: number;
+  onLoginStateChange?: () => void;
 };
 
 function Header({
@@ -43,6 +47,9 @@ function Header({
   onLocationSelect,
   showSearchPage = false,
   setShowSearchPage,
+  onPinSelect,
+  refreshTrigger,
+  onLoginStateChange,
 }: HeaderProps) {
   const [showFriendsPage, setShowFriendsPage] = useState(false);
   const [showFolderPage, setShowFolderPage] = useState(false);
@@ -56,7 +63,6 @@ function Header({
   const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
   const [signupPhoneNumber, setSignupPhoneNumber] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<UserDTO | null>(null);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 
@@ -68,7 +74,6 @@ function Header({
     if (savedLoginState === "true" && savedUserId) {
       const userId = parseInt(savedUserId, 10);
       setIsLoggedIn(true);
-      setCurrentUserId(userId);
       // 사용자 정보 로드
       loadUserInfo(userId);
     }
@@ -100,9 +105,13 @@ function Header({
       
       // 상태 초기화
       setIsLoggedIn(false);
-      setCurrentUserId(null);
       setCurrentUser(null);
       setShowUserInfoModal(false);
+      
+      // 전체 앱 상태 초기화
+      if (onLoginStateChange) {
+        onLoginStateChange();
+      }
       
       alert("로그아웃되었습니다.");
     } catch (error) {
@@ -268,7 +277,7 @@ function Header({
             />
           )}
           {showFriendsPage && <FriendList />}
-          {showPinListPage && <PinList />}
+          {showPinListPage && <PinList onPinSelect={onPinSelect} refreshTrigger={refreshTrigger} />}
           {showFolderPage && <PinFolder />}
         </DropDown>
       </div>
@@ -329,7 +338,6 @@ function Header({
                   
                   // 상태 업데이트
                   setIsLoggedIn(true);
-                  setCurrentUserId(userId);
                   
                   // 사용자 정보 로드
                   console.log("사용자 정보 로드 시작");
@@ -339,6 +347,11 @@ function Header({
                   setLoginId("");
                   setLoginPassword("");
                   setShowUserModal(false);
+                  
+                  // 전체 앱 상태 초기화
+                  if (onLoginStateChange) {
+                    onLoginStateChange();
+                  }
                   
                   alert("로그인 성공!");
                 } else {
