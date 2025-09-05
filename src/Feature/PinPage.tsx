@@ -2,9 +2,7 @@ import { faPencil, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PhotoFrame from "../common/PhotoFrame";
 import { faTrashCan, faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
-import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons";
-import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { createPost } from "../api/posts";
 
 type PinPageProps = {
@@ -19,25 +17,32 @@ type PinPageProps = {
     content: string;
     dateStr: string;
     files: File[];
-    showBookMark: boolean;
   };
   setPinPageState: React.Dispatch<React.SetStateAction<{
     title: string;
     content: string;
     dateStr: string;
     files: File[];
-    showBookMark: boolean;
   }>>;
 };
 
 const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageState }: PinPageProps) => {
-  const { title, content, dateStr, files, showBookMark } = pinPageState;
+  const { title, content, dateStr, files } = pinPageState;
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   
   const setTitle = (value: string) => setPinPageState(prev => ({ ...prev, title: value }));
   const setContent = (value: string) => setPinPageState(prev => ({ ...prev, content: value }));
   const setDateStr = (value: string) => setPinPageState(prev => ({ ...prev, dateStr: value }));
   const setFiles = (value: File[]) => setPinPageState(prev => ({ ...prev, files: value }));
-  const setShowBookMark = (value: boolean) => setPinPageState(prev => ({ ...prev, showBookMark: value }));
+
+  // localStorage에서 현재 사용자 ID 로드
+  useEffect(() => {
+    const savedUserId = localStorage.getItem("userId");
+    if (savedUserId) {
+      const userId = parseInt(savedUserId, 10);
+      setCurrentUserId(userId);
+    }
+  }, []);
   
   const isSubmittable = useMemo(
     () => title.trim().length > 0 && content.trim().length > 0,
@@ -63,35 +68,17 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
             <span className="md:text-3xl text-2xl">This is name space</span>
           </div>
           <div className="w-full flex flex-col gap-1 md:mb-7 mb-5">
-            <div className="flex w-full justify-between">
-              <label htmlFor="title" className="md:text-xl text-lg">
-                제목
-              </label>
-              {showBookMark && (
-                <div className="flex gap-2 md:-mt-6 -mt-3 cursor-pointer">
-                  <div className="md:w-10 md:h-10 w-8 h-8 rounded-full flex items-center justify-center bg-red-400"></div>
-                  <div className="md:w-10 md:h-10 w-8 h-8 rounded-full flex items-center justify-center bg-orange-400"></div>
-                  <div className="md:w-10 md:h-10 w-8 h-8 rounded-full flex items-center justify-center bg-yellow-400"></div>
-                  <div className="md:w-10 md:h-10 w-8 h-8 rounded-full flex items-center justify-center bg-green-400"></div>
-                  <div className="md:w-10 md:h-10 w-8 h-8 rounded-full flex items-center justify-center bg-sky-400"></div>
-                </div>
-              )}
-            </div>
+            <label htmlFor="title" className="md:text-xl text-lg">
+              제목
+            </label>
             <div className="w-full flex items-center border-1 border-gray-200 rounded-md md:p-3 p-2">
               <input
                 type="text"
                 placeholder="핀 제목을 입력해주세요"
                 id="title"
-                className="w-full outline-none focus:outline-none md:text-xl text-lg mr-4"
+                className="w-full outline-none focus:outline-none md:text-xl text-lg"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-              />
-              <FontAwesomeIcon
-                icon={showBookMark ? faSolidBookmark : faRegularBookmark}
-                className={` md:text-3xl text-2xl mr-2 cursor-pointer ${
-                  showBookMark ? "text-red-400" : "text-gray-500"
-                }`}
-                onClick={() => setShowBookMark(!showBookMark)}
               />
             </div>
           </div>
@@ -157,56 +144,74 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
               }`}
               disabled={!isSubmittable}
               onClick={async () => {
-                const form = new FormData();
-                const payload = {
-                  title,
-                  content,
-                  // TODO: 실제 로그인 사용자 ID 연동 필요
-                  userId: 1,
-                  longitude: selectedLocation?.lng ?? null,
-                  latitude: selectedLocation?.lat ?? null,
-                };
-                form.append(
-                  "request",
-                  new Blob([JSON.stringify(payload)], { type: "application/json" })
-                );
-                files.forEach((f) => form.append("files", f));
-                // 전송 데이터 콘솔 확인
-                console.log("[PinPage] payload:", payload);
-                console.log(
-                  "[PinPage] files:",
-                  files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
-                );
-                const fdPreview: Record<string, unknown[]> = {};
-                for (const [key, value] of form.entries()) {
-                  if (!fdPreview[key]) fdPreview[key] = [];
-                  if (value instanceof File) {
-                    fdPreview[key].push({
-                      name: value.name,
-                      type: value.type,
-                      size: value.size,
-                    });
-                  } else {
-                    fdPreview[key].push(
-                      typeof value === "string" ? value : "(non-string value)"
-                    );
-                  }
+                if (!currentUserId) {
+                  alert("로그인이 필요합니다.");
+                  return;
                 }
-                console.log("[PinPage] FormData entries:", fdPreview);
+
                 try {
+                  const form = new FormData();
+                  const payload = {
+                    title,
+                    content,
+                    userId: currentUserId,
+                    longitude: selectedLocation?.lng ?? null,
+                    latitude: selectedLocation?.lat ?? null,
+                  };
+                  form.append(
+                    "request",
+                    new Blob([JSON.stringify(payload)], { type: "application/json" })
+                  );
+                  
+                  // 파일이 있을 때만 추가 (백엔드 업로드 디렉토리 문제 해결 전까지)
+                  if (files.length > 0) {
+                    console.log("파일 업로드 시도:", files.map((f) => ({ name: f.name, type: f.type, size: f.size })));
+                    files.forEach((f) => form.append("files", f));
+                  } else {
+                    console.log("파일 없이 게시글 등록 시도");
+                  }
+
+                  // 전송 데이터 콘솔 확인
+                  console.log("[PinPage] payload:", payload);
+                  
+                  const fdPreview: Record<string, unknown[]> = {};
+                  for (const [key, value] of form.entries()) {
+                    if (!fdPreview[key]) fdPreview[key] = [];
+                    if (value instanceof File) {
+                      fdPreview[key].push({
+                        name: value.name,
+                        type: value.type,
+                        size: value.size,
+                      });
+                    } else {
+                      fdPreview[key].push(
+                        typeof value === "string" ? value : "(non-string value)"
+                      );
+                    }
+                  }
+                  console.log("[PinPage] FormData entries:", fdPreview);
+
                   await createPost(form);
                   alert("등록되었습니다.");
+                  
                   // 제출 성공 후 상태 초기화
                   setPinPageState({
                     title: "",
                     content: "",
                     dateStr: "",
-                    files: [],
-                    showBookMark: false
+                    files: []
                   });
                 } catch (e) {
-                  console.error(e);
-                  alert("등록에 실패했습니다.");
+                  console.error("게시글 등록 실패:", e);
+                  
+                  // 에러 메시지에 따라 다른 알림 표시
+                  if (e instanceof Error && e.message.includes("FileNotFoundException")) {
+                    alert("파일 업로드에 실패했습니다. 백엔드 업로드 디렉토리를 확인해주세요.");
+                  } else if (e instanceof Error && e.message.includes("500")) {
+                    alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                  } else {
+                    alert("등록에 실패했습니다. 다시 시도해주세요.");
+                  }
                 }
               }}
             >

@@ -238,7 +238,7 @@ function Header({
           >
             <FontAwesomeIcon icon={faUser} className="mr-5" />
             {!showDropDown && !showPinPage && (
-              <span>{isLoggedIn ? "사용자 정보" : "User"}</span>
+              <span>User</span>
             )}
           </div>
         </div>
@@ -389,14 +389,6 @@ function Header({
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                   <span className="font-semibold">전화번호:</span>
                   <span>{currentUser.phoneNumber}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="font-semibold">가입일:</span>
-                  <span>{new Date(currentUser.regDate).toLocaleDateString()}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="font-semibold">수정일:</span>
-                  <span>{new Date(currentUser.modDate).toLocaleDateString()}</span>
                 </div>
               </div>
               <button
