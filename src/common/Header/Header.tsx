@@ -278,7 +278,7 @@ function Header({
           )}
           {showFriendsPage && <FriendList />}
           {showPinListPage && <PinList onPinSelect={onPinSelect} refreshTrigger={refreshTrigger} />}
-          {showFolderPage && <PinFolder />}
+          {showFolderPage && <PinFolder onPinSelect={onPinSelect} />}
         </DropDown>
       </div>
 
@@ -518,6 +518,7 @@ function Header({
         setSearchKeyword={setSearchKeyword}
         searchResults={searchResults}
         setShowMobilePinList={setShowMobilePinList}
+        onLoginStateChange={onLoginStateChange}
       />
     </div>
   );

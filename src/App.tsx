@@ -8,6 +8,7 @@ import MobileDropDown from "./common/Header/MobileDropDown";
 import PinPage from "./Feature/PinPage";
 import MobileSearchPage from "./Feature/Mobile/MobileSearchPage";
 import MobilePinList from "./Feature/Mobile/MobilePinList";
+import MobileFolder from "./Feature/Mobile/MobileFolder";
 import PinInfo from "./Feature/PinInfo";
 import { deletePost } from "./api/posts";
 import type { PostResponseDTO } from "./api/types";
@@ -17,6 +18,8 @@ function App() {
   const [showPinPage, setShowPinPage] = useState(false);
   const [showDropDown, setShowDropDown] = useState(false);
   const [showMobilePinList, setShowMobilePinList] = useState(false);
+  const [showMobileFolder, setShowMobileFolder] = useState(false);
+  const [pinInfoSource, setPinInfoSource] = useState<'mobileFolder' | 'pinList' | 'other'>('other');
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<unknown[]>([]);
   const [showSearchPage, setShowSearchPage] = useState(false);
@@ -89,13 +92,39 @@ function App() {
     setShowSearchPage(true);
   };
 
-  // 핀 선택 핸들러
+  // 핀 선택 핸들러 (핀 리스트에서)
   const handlePinSelect = (post: PostResponseDTO) => {
     setSelectedPost(post);
     setShowPinInfo(true);
+    setPinInfoSource('pinList');
     setShowDropDown(false);
     setShowSearchPage(false);
     setShowMobilePinList(false);
+    // 검색 결과 초기화하여 MobileSearchPage가 닫히도록 함
+    setSearchResults([]);
+  };
+
+  // MobileFolder에서 핀 선택 핸들러
+  const handleMobileFolderPinSelect = (post: PostResponseDTO) => {
+    setSelectedPost(post);
+    setShowPinInfo(true);
+    setPinInfoSource('mobileFolder');
+    setShowMobileFolder(false); // MobileFolder 닫기
+  };
+
+  // PinInfo 닫기 핸들러 (어디서 왔는지에 따라 적절한 화면으로 돌아가기)
+  const handlePinInfoClose = () => {
+    setShowPinInfo(false);
+    
+    // 어디서 왔는지에 따라 적절한 화면으로 돌아가기
+    if (pinInfoSource === 'mobileFolder') {
+      setShowMobileFolder(true);
+    } else if (pinInfoSource === 'pinList') {
+      setShowMobilePinList(true);
+    }
+    
+    // 소스 초기화
+    setPinInfoSource('other');
   };
 
   // 핀 편집 핸들러
@@ -203,7 +232,12 @@ function App() {
           setShowDropDown={setShowDropDown}
           setSearchKeyword={setSearchKeyword}
           searchResults={searchResults}
-          setShowMobilePinList={setShowMobilePinList}
+          setShowMobilePinList={(value: boolean) => {
+            setShowMobilePinList(value);
+            if (value) {
+              setPinInfoSource('pinList');
+            }
+          }}
           onLocationSelect={handleLocationSelect}
           showSearchPage={showSearchPage}
           setShowSearchPage={setShowSearchPage}
@@ -227,14 +261,6 @@ function App() {
               onSuccess={handlePinPageSuccess}
             />
           )}
-          {showPinInfo && (
-            <PinInfo
-              selectedPost={selectedPost}
-              onClose={() => setShowPinInfo(false)}
-              onEdit={handlePinEdit}
-              onDelete={handlePinDelete}
-            />
-          )}
           <MobileSearchPage
             searchResults={searchResults}
             onLocationSelect={handleLocationSelect}
@@ -251,12 +277,39 @@ function App() {
             />
           </div>
         )}
+
+        {/* MobileFolder를 Background 밖에 배치하되 같은 컨테이너 안에 */}
+        {showMobileFolder && (
+          <div className="absolute inset-0 z-20">
+            <MobileFolder 
+              setShowMobileFolder={setShowMobileFolder}
+              onPinSelect={handleMobileFolderPinSelect}
+              refreshTrigger={refreshTrigger}
+            />
+          </div>
+        )}
+
+        {/* PinInfo를 MobileFolder보다 높은 z-index로 배치 */}
+        {showPinInfo && (
+          <div className="absolute inset-0 z-30">
+            <PinInfo
+              selectedPost={selectedPost}
+              onClose={handlePinInfoClose}
+              onEdit={handlePinEdit}
+              onDelete={handlePinDelete}
+            />
+          </div>
+        )}
       </div>
       <div className="md:hidden flex-1 z-10">
         <Footer
           onUserFriendsClick={() => setShowMobileDropDown(!showMobileDropDown)}
           setShowPinPage={setShowPinPage}
           showPinPage={showPinPage}
+          onFolderClick={() => {
+            setShowMobileFolder(true);
+            setPinInfoSource('other');
+          }}
         />
       </div>
     </div>

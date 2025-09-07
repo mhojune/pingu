@@ -5,12 +5,14 @@ interface FooterProps {
   onUserFriendsClick: () => void;
   setShowPinPage: (value: boolean) => void;
   showPinPage: boolean;
+  onFolderClick: () => void;
 }
 
 const Footer: React.FC<FooterProps> = ({
   onUserFriendsClick,
   setShowPinPage,
   showPinPage,
+  onFolderClick,
 }) => {
   return (
     <div
@@ -27,7 +29,11 @@ const Footer: React.FC<FooterProps> = ({
         className=" text-red-500 cursor-pointer"
         onClick={() => setShowPinPage(!showPinPage)}
       />
-      <FontAwesomeIcon icon={faFolder} className="mr-5" />
+      <FontAwesomeIcon 
+        icon={faFolder} 
+        className="mr-5 cursor-pointer" 
+        onClick={onFolderClick}
+      />
     </div>
   );
 };

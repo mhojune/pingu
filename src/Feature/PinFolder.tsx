@@ -15,7 +15,11 @@ type Folder = {
 
 type FolderView = 'list' | 'pins' | 'addPins';
 
-const PinFolder = () => {
+type PinFolderProps = {
+  onPinSelect?: (post: PostResponseDTO) => void;
+};
+
+const PinFolder = ({ onPinSelect }: PinFolderProps) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
@@ -253,6 +257,19 @@ const PinFolder = () => {
     }
   };
 
+  // 핀 클릭 핸들러
+  const handlePinClick = async (postId: number) => {
+    try {
+      const postDetail = await getPostById(postId);
+      if (onPinSelect) {
+        onPinSelect(postDetail);
+      }
+    } catch (error) {
+      console.error("핀 상세 정보 로드 실패:", error);
+      alert("핀 정보를 불러올 수 없습니다.");
+    }
+  };
+
   // 뒤로가기
   const goBack = () => {
     setCurrentView('list');
@@ -378,6 +395,7 @@ const PinFolder = () => {
                     <div 
                       key={pin.postId} 
                       className="w-full flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors mb-2"
+                      onClick={() => handlePinClick(pin.postId)}
                     >
                       <div className="relative mr-5">
                         <div className="bg-gray-300 w-25 h-25 absolute -top-1.5 left-1.5"></div>

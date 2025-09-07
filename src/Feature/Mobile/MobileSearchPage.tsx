@@ -1,14 +1,21 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type MobileSearchPageProps = {
-  searchResults?: any[];
+  searchResults?: unknown[];
   onLocationSelect?: (location: { address: string; lat: number; lng: number }) => void;
 };
 
 function MobileSearchPage({ searchResults, onLocationSelect }: MobileSearchPageProps) {
   const [showSearchResults, setShowSearchResults] = useState(false);
+
+  // searchResults가 변경될 때 검색 결과 창 상태 초기화
+  useEffect(() => {
+    if (!searchResults || searchResults.length === 0) {
+      setShowSearchResults(false);
+    }
+  }, [searchResults]);
 
   const toggleSearchResults = () => {
     setShowSearchResults(!showSearchResults);
