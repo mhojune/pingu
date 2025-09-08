@@ -2,17 +2,17 @@ import { faFolder, faPlus, faUserFriends } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface FooterProps {
-  onUserFriendsClick: () => void;
   setShowPinPage: (value: boolean) => void;
   showPinPage: boolean;
   onFolderClick: () => void;
+  onFriendClick: () => void;
 }
 
 const Footer: React.FC<FooterProps> = ({
-  onUserFriendsClick,
   setShowPinPage,
   showPinPage,
   onFolderClick,
+  onFriendClick,
 }) => {
   return (
     <div
@@ -22,7 +22,7 @@ const Footer: React.FC<FooterProps> = ({
       <FontAwesomeIcon
         icon={faUserFriends}
         className="cursor-pointer"
-        onClick={onUserFriendsClick}
+        onClick={onFriendClick}
       />
       <FontAwesomeIcon
         icon={faPlus}

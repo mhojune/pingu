@@ -8,7 +8,8 @@ import {
   faUserMinus,
   faCheck,
   faTimes,
-  faTrash
+  faTrash,
+  faArrowLeft
 } from "@fortawesome/free-solid-svg-icons";
 import { 
   createFriendshipRequest, 
@@ -17,12 +18,16 @@ import {
   getSentFriendshipRequests,
   acceptFriendshipRequest,
   deleteFriendship
-} from "../api/friendships";
-import type { FriendshipResponseDTO } from "../api/types";
+} from "../../api/friendships";
+import type { FriendshipResponseDTO } from "../../api/types";
 
 type TabType = "friends" | "received" | "sent";
 
-const FriendList = () => {
+interface MobileFriendListProps {
+  setShowMobileFriendList: (value: boolean) => void;
+}
+
+const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriendList }) => {
   const [activeTab, setActiveTab] = useState<TabType>("friends");
   const [friends, setFriends] = useState<FriendshipResponseDTO[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponseDTO[]>([]);
@@ -81,8 +86,6 @@ const FriendList = () => {
     if (!currentUserId) return;
     refreshData();
   }, [currentUserId, refreshData]);
-
-
 
 
   // 친구 추가
@@ -152,7 +155,6 @@ const FriendList = () => {
     }
   };
 
-
   // 친구 관계 해제
   const handleRemoveFriend = async (friendId: number) => {
     if (!currentUserId) return;
@@ -173,59 +175,66 @@ const FriendList = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="w-full h-full flex flex-col p-6 gap-4 overflow-y-auto">
-        {/* 헤더 */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">친구 관리</h2>
-          <button
-            onClick={() => setShowAddFriendModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            <FontAwesomeIcon icon={faUserPlus} />
-            친구 추가
-          </button>
-        </div>
+    <div className="w-full h-full bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between p-4 bg-[#fafaf8] border-b border-gray-200">
+        <button
+          onClick={() => setShowMobileFriendList(false)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
+          <span className="text-lg font-medium">뒤로</span>
+        </button>
+        <h1 className="text-xl font-bold text-gray-800">친구 관리</h1>
+        <button
+          onClick={() => setShowAddFriendModal(true)}
+          className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          <FontAwesomeIcon icon={faUserPlus} />
+          <span className="text-sm">친구 추가</span>
+        </button>
+      </div>
 
-        {/* 탭 메뉴 */}
-        <div className="flex border-b border-gray-200 mb-4">
-          <button
-            onClick={() => setActiveTab("friends")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "friends"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <FontAwesomeIcon icon={faUserCheck} className="mr-2" />
-            친구 목록 ({friends.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("received")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "received"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <FontAwesomeIcon icon={faUserClock} className="mr-2" />
-            받은 요청 ({receivedRequests.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("sent")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "sent"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <FontAwesomeIcon icon={faUserMinus} className="mr-2" />
-            보낸 요청 ({sentRequests.length})
-          </button>
-        </div>
+      {/* 탭 메뉴 */}
+      <div className="flex border-b border-gray-200 bg-white">
+        <button
+          onClick={() => setActiveTab("friends")}
+          className={`flex-1 px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+            activeTab === "friends"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <FontAwesomeIcon icon={faUserCheck} className="mr-2" />
+          친구 ({friends.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("received")}
+          className={`flex-1 px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+            activeTab === "received"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <FontAwesomeIcon icon={faUserClock} className="mr-2" />
+          받은 요청 ({receivedRequests.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("sent")}
+          className={`flex-1 px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+            activeTab === "sent"
+              ? "border-blue-500 text-blue-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <FontAwesomeIcon icon={faUserMinus} className="mr-2" />
+          보낸 요청 ({sentRequests.length})
+        </button>
+      </div>
 
 
-        {/* 목록 표시 */}
+      {/* 목록 표시 */}
+      <div className="flex-1 overflow-y-auto">
         {!currentUserId ? (
           <div className="flex flex-col items-center justify-center h-64 gap-4">
             <FontAwesomeIcon icon={faUser} className="text-6xl text-gray-300" />
@@ -242,7 +251,7 @@ const FriendList = () => {
             {activeTab === "friends" && (
               <>
                 {friends.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 gap-4">
+                  <div className="flex flex-col items-center justify-center h-64 gap-4 p-4">
                     <FontAwesomeIcon icon={faUserCheck} className="text-6xl text-gray-300" />
                     <span className="text-xl text-gray-500">친구가 없습니다</span>
                     <button
@@ -254,13 +263,13 @@ const FriendList = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2 p-4">
                     {friends.map((friendship) => {
                       const friend = friendship.friend1.userId === currentUserId ? friendship.friend2 : friendship.friend1;
                       return (
                         <div
                           key={friendship.id}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200"
                         >
                           <div className="mr-4">
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
@@ -280,7 +289,7 @@ const FriendList = () => {
                           
                           <button 
                             onClick={() => handleRemoveFriend(friend.userId!)}
-                            className="flex items-center gap-2 px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
                           >
                             <FontAwesomeIcon icon={faTrash} />
                             친구 해제
@@ -297,18 +306,18 @@ const FriendList = () => {
             {activeTab === "received" && (
               <>
                 {receivedRequests.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 gap-4">
+                  <div className="flex flex-col items-center justify-center h-64 gap-4 p-4">
                     <FontAwesomeIcon icon={faUserClock} className="text-6xl text-gray-300" />
                     <span className="text-xl text-gray-500">받은 친구 요청이 없습니다</span>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2 p-4">
                     {receivedRequests.map((friendship) => {
                       const requester = friendship.friend1;
                       return (
                         <div
                           key={friendship.id}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200"
                         >
                           <div className="mr-4">
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
@@ -329,14 +338,14 @@ const FriendList = () => {
                           <div className="flex gap-2">
                             <button 
                               onClick={() => handleAcceptRequest(requester.userId!)}
-                              className="flex items-center gap-2 px-3 py-1 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
                             >
                               <FontAwesomeIcon icon={faCheck} />
                               수락
                             </button>
                             <button 
                               onClick={() => handleRejectRequest(requester.userId!)}
-                              className="flex items-center gap-2 px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
                             >
                               <FontAwesomeIcon icon={faTimes} />
                               거절
@@ -354,18 +363,18 @@ const FriendList = () => {
             {activeTab === "sent" && (
               <>
                 {sentRequests.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 gap-4">
+                  <div className="flex flex-col items-center justify-center h-64 gap-4 p-4">
                     <FontAwesomeIcon icon={faUserMinus} className="text-6xl text-gray-300" />
                     <span className="text-xl text-gray-500">보낸 친구 요청이 없습니다</span>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2 p-4">
                     {sentRequests.map((friendship) => {
                       const receiver = friendship.friend2;
                       return (
                         <div
                           key={friendship.id}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200"
                         >
                           <div className="mr-4">
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
@@ -383,7 +392,7 @@ const FriendList = () => {
                             <span className="text-sm text-gray-500">{receiver.phoneNumber}</span>
                           </div>
                           
-                          <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-lg">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 text-sm rounded-lg">
                             <FontAwesomeIcon icon={faUserClock} />
                             대기 중
                           </div>
@@ -394,7 +403,6 @@ const FriendList = () => {
                 )}
               </>
             )}
-
           </>
         )}
       </div>
@@ -402,7 +410,7 @@ const FriendList = () => {
       {/* 친구 추가 모달 */}
       {showAddFriendModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
+          <div className="bg-white rounded-lg p-6 w-96 mx-4">
             <h3 className="text-xl font-bold mb-4">친구 추가</h3>
             <input
               type="text"
@@ -436,4 +444,4 @@ const FriendList = () => {
   );
 };
 
-export default FriendList;
+export default MobileFriendList;

@@ -9,6 +9,7 @@ import PinPage from "./Feature/PinPage";
 import MobileSearchPage from "./Feature/Mobile/MobileSearchPage";
 import MobilePinList from "./Feature/Mobile/MobilePinList";
 import MobileFolder from "./Feature/Mobile/MobileFolder";
+import MobileFriendList from "./Feature/Mobile/MobileFriendList";
 import PinInfo from "./Feature/PinInfo";
 import { deletePost } from "./api/posts";
 import type { PostResponseDTO } from "./api/types";
@@ -19,6 +20,7 @@ function App() {
   const [showDropDown, setShowDropDown] = useState(false);
   const [showMobilePinList, setShowMobilePinList] = useState(false);
   const [showMobileFolder, setShowMobileFolder] = useState(false);
+  const [showMobileFriendList, setShowMobileFriendList] = useState(false);
   const [pinInfoSource, setPinInfoSource] = useState<'mobileFolder' | 'pinList' | 'other'>('other');
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<unknown[]>([]);
@@ -184,6 +186,8 @@ function App() {
     setShowPinPage(false);
     setShowDropDown(false);
     setShowMobilePinList(false);
+    setShowMobileFolder(false);
+    setShowMobileFriendList(false);
     setSearchKeyword("");
     setSearchResults([]);
     setShowSearchPage(false);
@@ -289,6 +293,15 @@ function App() {
           </div>
         )}
 
+        {/* MobileFriendList를 Background 밖에 배치하되 같은 컨테이너 안에 */}
+        {showMobileFriendList && (
+          <div className="absolute inset-0 z-20">
+            <MobileFriendList 
+              setShowMobileFriendList={setShowMobileFriendList}
+            />
+          </div>
+        )}
+
         {/* PinInfo를 MobileFolder보다 높은 z-index로 배치 */}
         {showPinInfo && (
           <div className="absolute inset-0 z-30">
@@ -303,11 +316,14 @@ function App() {
       </div>
       <div className="md:hidden flex-1 z-10">
         <Footer
-          onUserFriendsClick={() => setShowMobileDropDown(!showMobileDropDown)}
           setShowPinPage={setShowPinPage}
           showPinPage={showPinPage}
           onFolderClick={() => {
             setShowMobileFolder(true);
+            setPinInfoSource('other');
+          }}
+          onFriendClick={() => {
+            setShowMobileFriendList(true);
             setPinInfoSource('other');
           }}
         />
