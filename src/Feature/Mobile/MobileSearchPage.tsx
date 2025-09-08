@@ -2,8 +2,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
+type PlaceResult = {
+  place_name: string;
+  x: string; // longitude
+  y: string; // latitude
+  road_address_name?: string;
+  address_name?: string;
+  phone?: string;
+};
+
 type MobileSearchPageProps = {
-  searchResults?: unknown[];
+  searchResults?: PlaceResult[];
   onLocationSelect?: (location: { address: string; lat: number; lng: number }) => void;
 };
 
@@ -21,7 +30,7 @@ function MobileSearchPage({ searchResults, onLocationSelect }: MobileSearchPageP
     setShowSearchResults(!showSearchResults);
   };
 
-  const handleLocationSelect = (place: any) => {
+  const handleLocationSelect = (place: PlaceResult) => {
     if (onLocationSelect) {
       const location = {
         address: place.place_name,
@@ -57,7 +66,7 @@ function MobileSearchPage({ searchResults, onLocationSelect }: MobileSearchPageP
         <div className="bg-white border-b border-gray-200 max-h-96 overflow-y-auto">
           <div className="p-3">
             <ul className="space-y-2">
-              {searchResults.map((place, index) => (
+              {searchResults.map((place: PlaceResult, index: number) => (
                 <li key={index} className="item bg-white p-3 rounded-lg shadow-sm border">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start flex-1">
