@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { faLocationDot, faCalendar, faPencil, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faImage } from "@fortawesome/free-regular-svg-icons";
 import { useState, useEffect } from "react";
 import { getUserById } from "../api/users";
 import type { PostResponseDTO } from "../api/types";
@@ -168,10 +167,7 @@ const PinInfo = ({ selectedPost, onClose, onEdit, onDelete }: PinInfoProps) => {
           </div>
 
           {/* 작성자 정보 */}
-          <div className="w-full flex items-center gap-3 mb-5">
-            <div className="md:w-14 md:h-14 w-10 h-10 rounded-full flex items-center justify-center bg-gray-300">
-              <FontAwesomeIcon icon={faImage} className="text-gray-500" />
-            </div>
+          <div className="w-full flex items-center mb-5">
             <span className="md:text-3xl text-2xl">{postUserName}</span>
           </div>
 

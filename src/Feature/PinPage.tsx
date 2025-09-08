@@ -1,7 +1,7 @@
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PhotoFrame from "../common/PhotoFrame";
-import { faImage, faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { createPost, updatePost } from "../api/posts";
 import { getUserById } from "../api/users";
@@ -110,10 +110,7 @@ const PinPage = ({ selectedLocation, onLocationEdit, pinPageState, setPinPageSta
           existingImageUrl={isEditMode && selectedPost?.files && selectedPost.files.length > 0 ? selectedPost.files[0].url : undefined}
         />
         <div className="w-full flex flex-col items-center md:px-15">
-          <div className="w-full flex items-center gap-3 mb-5">
-            <div className="md:w-14 md:h-14 w-10 h-10 rounded-full flex items-center justify-center bg-gray-300">
-              <FontAwesomeIcon icon={faImage} className="text-gray-500" />
-            </div>
+          <div className="w-full flex items-center mb-5">
             <span className="md:text-3xl text-2xl">{currentUserName || "사용자"}</span>
           </div>
           <div className="w-full flex flex-col gap-1 md:mb-7 mb-5">
