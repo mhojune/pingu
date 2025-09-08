@@ -7,6 +7,7 @@ import Footer from "./common/Footer";
 import MobileDropDown from "./common/Header/MobileDropDown";
 import PinPage from "./Feature/PinPage";
 import MobileSearchPage from "./Feature/Mobile/MobileSearchPage";
+import type { PlaceResult } from "./Feature/Mobile/MobileSearchPage";
 import MobilePinList from "./Feature/Mobile/MobilePinList";
 import MobileFolder from "./Feature/Mobile/MobileFolder";
 import MobileFriendList from "./Feature/Mobile/MobileFriendList";
@@ -23,7 +24,7 @@ function App() {
   const [showMobileFriendList, setShowMobileFriendList] = useState(false);
   const [pinInfoSource, setPinInfoSource] = useState<'mobileFolder' | 'pinList' | 'mobileFriendList' | 'other'>('other');
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [searchResults, setSearchResults] = useState<unknown[]>([]);
+  const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
   const [showSearchPage, setShowSearchPage] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;

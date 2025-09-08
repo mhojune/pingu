@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
-type PlaceResult = {
+export type PlaceResult = {
   place_name: string;
   x: string; // longitude
   y: string; // latitude
