@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { faLocationDot, faCalendar, faPencil, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-regular-svg-icons";
@@ -106,7 +107,7 @@ const PinInfo = ({ selectedPost, onClose, onEdit, onDelete }: PinInfoProps) => {
 
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-white z-10 flex flex-col items-center">
+    <div className="absolute top-0 left-0 w-full h-full bg-white z-[60] flex flex-col items-center">
       <div
         className="w-full max-w-7xl px-5 sm:px-10 md:px-20 lg:px-40 xl:px-60 flex flex-col items-center overflow-y-scroll"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}

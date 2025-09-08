@@ -33,6 +33,7 @@ type HeaderProps = {
   setShowSearchPage?: (value: boolean) => void;
   onPinSelect?: (post: PostResponseDTO) => void;
   refreshTrigger?: number;
+  loginRefreshTrigger?: number;
   onLoginStateChange?: () => void;
 };
 
@@ -49,6 +50,7 @@ function Header({
   setShowSearchPage,
   onPinSelect,
   refreshTrigger,
+  loginRefreshTrigger,
   onLoginStateChange,
 }: HeaderProps) {
   const [showFriendsPage, setShowFriendsPage] = useState(false);
@@ -276,9 +278,17 @@ function Header({
               onLocationSelect={onLocationSelect}
             />
           )}
-          {showFriendsPage && <FriendList />}
-          {showPinListPage && <PinList onPinSelect={onPinSelect} refreshTrigger={refreshTrigger} />}
-          {showFolderPage && <PinFolder onPinSelect={onPinSelect} />}
+          {showFriendsPage && <FriendList key={`friends-${loginRefreshTrigger ?? 0}`} onPinSelect={onPinSelect} />}
+          {showPinListPage && (
+            <PinList
+              key={`pinlist-${loginRefreshTrigger ?? 0}`}
+              onPinSelect={onPinSelect}
+              refreshTrigger={refreshTrigger}
+            />
+          )}
+          {showFolderPage && (
+            <PinFolder key={`pinfolder-${loginRefreshTrigger ?? 0}`} onPinSelect={onPinSelect} />
+          )}
         </DropDown>
       </div>
 

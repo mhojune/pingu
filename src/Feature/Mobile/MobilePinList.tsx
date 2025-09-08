@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { getPosts, getPostById } from "../../api/posts";
 import { getUserById } from "../../api/users";
@@ -9,9 +9,10 @@ type MobilePinListProps = {
   setShowMobilePinList: (value: boolean) => void;
   onPinSelect?: (post: PostResponseDTO) => void;
   refreshTrigger?: number;
+  userId?: number; // 특정 사용자의 핀 필터
 };
 
-const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger }: MobilePinListProps) => {
+const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger, userId }: MobilePinListProps) => {
   const [posts, setPosts] = useState<PostResponseDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -21,24 +22,26 @@ const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger }: Mo
     let mounted = true;
     (async () => {
       try {
-        // 현재 사용자 ID 로드
-        const savedUserId = localStorage.getItem("userId");
-        if (!savedUserId) {
+        // 조회할 사용자 ID 결정 (props 우선)
+        const targetUserId = userId ?? (() => {
+          const savedUserId = localStorage.getItem("userId");
+          return savedUserId ? parseInt(savedUserId, 10) : NaN;
+        })();
+
+        if (!targetUserId || Number.isNaN(targetUserId)) {
           setError("로그인이 필요합니다.");
           setLoading(false);
           return;
         }
 
-        const userId = parseInt(savedUserId, 10);
-
         // 사용자 정보 가져오기
-        const userInfo = await getUserById(userId);
+        const userInfo = await getUserById(targetUserId);
         if (!mounted) return;
         setCurrentUserName(userInfo.username || "사용자");
 
-        // 현재 사용자의 핀들 가져오기
+        // 대상 사용자의 핀들 가져오기
         const res = await getPosts({
-          userId: userId,
+          userId: targetUserId,
           page: 1,
           size: 10,
           sortBy: "postId",
@@ -56,7 +59,7 @@ const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger }: Mo
     return () => {
       mounted = false;
     };
-  }, [refreshTrigger]);
+  }, [refreshTrigger, userId]);
 
   const handlePinClick = async (postId: number) => {
     console.log("핀 클릭됨:", postId);
@@ -98,7 +101,6 @@ const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger }: Mo
             <div className="flex flex-col items-center gap-4 mt-20">
               <div className="text-6xl">📌</div>
               <span className="text-2xl text-gray-500">아직 등록된 핀이 없습니다</span>
-              <span className="text-lg text-gray-400">첫 번째 핀을 만들어보세요!</span>
             </div>
           )}
           {!loading && !error && posts.length > 0 && (
@@ -135,6 +137,20 @@ const MobilePinList = ({ setShowMobilePinList, onPinSelect, refreshTrigger }: Mo
                       </span>
                       <span className="text-xs mt-1">{post.title}</span>
               </div>
+              <button
+                className="ml-auto px-2 py-1 text-blue-600 hover:text-blue-800"
+                aria-label="지도에서 보기"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent("focus-map", { detail: { lat: post.latitude, lng: post.longitude, title: post.title } }));
+                  }
+                  // 아이콘을 누르면 리스트 닫기
+                  setShowMobilePinList(false);
+                }}
+              >
+                <FontAwesomeIcon icon={faLocationDot} />
+              </button>
             </div>
                 );
               })}

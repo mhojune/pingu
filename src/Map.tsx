@@ -56,11 +56,31 @@ const Map = ({ searchKeyword, onSearchResults, loginRefreshTrigger = 0 }: MapPro
 
     initServices();
 
+    // 외부에서 지도 포커스 요청을 받을 리스너 등록
+    const handleFocusMap = (e: Event) => {
+      try {
+        const ce = e as CustomEvent<{ lat: number; lng: number; title?: string }>;
+        const { lat, lng, title } = ce.detail || ({} as any);
+        if (!mapRef.current || typeof lat !== "number" || typeof lng !== "number") return;
+        // 기존 마커 제거 후 신규 마커 추가 및 센터 이동
+        removeMarker();
+        const pos = new window.kakao.maps.LatLng(lat, lng);
+        const marker = addMarker(pos, 0, title || "");
+        mapRef.current.setLevel(3);
+        mapRef.current.setCenter(pos);
+        if (title) {
+          displayInfowindow(marker, title);
+        }
+      } catch {}
+    };
+    window.addEventListener("focus-map", handleFocusMap as EventListener);
+
     // cleanup 함수
     return () => {
       if (mapContainer) {
         mapContainer.innerHTML = "";
       }
+      window.removeEventListener("focus-map", handleFocusMap as EventListener);
     };
   }, []);
 

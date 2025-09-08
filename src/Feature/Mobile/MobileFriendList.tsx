@@ -9,7 +9,9 @@ import {
   faCheck,
   faTimes,
   faTrash,
-  faArrowLeft
+  faArrowLeft,
+  faChevronRight,
+  faChevronDown
 } from "@fortawesome/free-solid-svg-icons";
 import { 
   createFriendshipRequest, 
@@ -20,14 +22,18 @@ import {
   deleteFriendship
 } from "../../api/friendships";
 import type { FriendshipResponseDTO } from "../../api/types";
+import type { PostResponseDTO } from "../../api/types";
+// MobilePinList는 전체 화면 컴포넌트이므로 여기선 임베디드 용도로 공용 PinList를 사용
+import PinList from "../PinList";
 
 type TabType = "friends" | "received" | "sent";
 
 interface MobileFriendListProps {
   setShowMobileFriendList: (value: boolean) => void;
+  onPinSelect?: (post: PostResponseDTO) => void;
 }
 
-const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriendList }) => {
+const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriendList, onPinSelect }) => {
   const [activeTab, setActiveTab] = useState<TabType>("friends");
   const [friends, setFriends] = useState<FriendshipResponseDTO[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponseDTO[]>([]);
@@ -36,6 +42,7 @@ const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriend
   const [newFriendId, setNewFriendId] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [expandedFriendUserId, setExpandedFriendUserId] = useState<number | null>(null);
 
   // localStorage에서 현재 사용자 ID 로드
   useEffect(() => {
@@ -269,31 +276,52 @@ const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriend
                       return (
                         <div
                           key={friendship.id}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200"
+                          className="p-4 bg-white rounded-lg shadow-sm border border-gray-200"
                         >
-                          <div className="mr-4">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
-                              <FontAwesomeIcon 
-                                icon={faUser} 
-                                className="text-lg text-gray-400" 
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => setExpandedFriendUserId(prev => prev === friend.userId ? null : friend.userId || null)}
+                              className="mr-3 text-gray-600 hover:text-gray-800"
+                              aria-label="핀 목록 토글"
+                            >
+                              <FontAwesomeIcon icon={expandedFriendUserId === friend.userId ? faChevronDown : faChevronRight} />
+                            </button>
+                            <div className="mr-4">
+                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
+                                <FontAwesomeIcon 
+                                  icon={faUser} 
+                                  className="text-lg text-gray-400" 
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-semibold">{friend.username}</span>
+                              </div>
+                              <span className="text-sm text-gray-500">{friend.phoneNumber}</span>
+                            </div>
+                            
+                            <button 
+                              onClick={() => handleRemoveFriend(friend.userId!)}
+                              className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                              친구 해제
+                            </button>
+                          </div>
+
+                          {expandedFriendUserId === friend.userId && (
+                            <div className="mt-3 border-t pt-3">
+                              <PinList
+                                userId={friend.userId}
+                                onPinSelect={(post) => {
+                                  if (onPinSelect) onPinSelect(post);
+                                }}
+                                onFocusMap={() => setShowMobileFriendList(false)}
                               />
                             </div>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg font-semibold">{friend.username}</span>
-                            </div>
-                            <span className="text-sm text-gray-500">{friend.phoneNumber}</span>
-                          </div>
-                          
-                          <button 
-                            onClick={() => handleRemoveFriend(friend.userId!)}
-                            className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                            친구 해제
-                          </button>
+                          )}
                         </div>
                       );
                     })}
@@ -440,6 +468,8 @@ const MobileFriendList: React.FC<MobileFriendListProps> = ({ setShowMobileFriend
           </div>
         </div>
       )}
+
+      {/* PinInfo는 App에서 렌더링 */}
     </div>
   );
 };

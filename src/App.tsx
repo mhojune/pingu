@@ -21,7 +21,7 @@ function App() {
   const [showMobilePinList, setShowMobilePinList] = useState(false);
   const [showMobileFolder, setShowMobileFolder] = useState(false);
   const [showMobileFriendList, setShowMobileFriendList] = useState(false);
-  const [pinInfoSource, setPinInfoSource] = useState<'mobileFolder' | 'pinList' | 'other'>('other');
+  const [pinInfoSource, setPinInfoSource] = useState<'mobileFolder' | 'pinList' | 'mobileFriendList' | 'other'>('other');
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<unknown[]>([]);
   const [showSearchPage, setShowSearchPage] = useState(false);
@@ -123,6 +123,8 @@ function App() {
       setShowMobileFolder(true);
     } else if (pinInfoSource === 'pinList') {
       setShowMobilePinList(true);
+    } else if (pinInfoSource === 'mobileFriendList') {
+      setShowMobileFriendList(true);
     }
     
     // 소스 초기화
@@ -224,7 +226,7 @@ function App() {
     <div className="flex md:flex-row flex-col h-screen relative">
       <div
         className={`h-full z-10 transition-all duration-500 ease-in-out ${
-          showDropDown || showPinPage
+          showDropDown || showPinPage || showPinInfo
             ? "md:flex-[0.5] flex-[1.4]"
             : "md:flex-[1.5] flex-[1.4]"
         }`}
@@ -247,11 +249,12 @@ function App() {
           setShowSearchPage={setShowSearchPage}
           onPinSelect={handlePinSelect}
           refreshTrigger={refreshTrigger}
+          loginRefreshTrigger={loginRefreshTrigger}
           onLoginStateChange={handleLoginStateChange}
         />
       </div>
-      <div className="md:flex-9 bg-white z-0 flex-9 relative">
-        <Background showPinPage={showPinPage}>
+      <div className={`md:flex-9 bg-white ${showPinInfo ? 'md:z-40 z-0' : 'md:z-0 z-0'} flex-9 relative`}>
+        <Background showPinPage={showPinPage || showPinInfo}>
           <Map searchKeyword={searchKeyword} onSearchResults={setSearchResults} loginRefreshTrigger={loginRefreshTrigger} />
           <MobileDropDown isVisible={showMobileDropDown} />
           {showPinPage && (
@@ -269,12 +272,26 @@ function App() {
             searchResults={searchResults}
             onLocationSelect={handleLocationSelect}
           />
+          {/* PinInfo를 Background 내부에서 렌더링하여 PinPage와 동일한 위치 기준 사용 */}
+          {showPinInfo && (
+            <PinInfo
+              selectedPost={selectedPost}
+              onClose={handlePinInfoClose}
+              {...(() => {
+                const savedUserId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+                const currentUserId = savedUserId ? parseInt(savedUserId, 10) : NaN;
+                const isOwner = selectedPost && !Number.isNaN(currentUserId) ? selectedPost.userId === currentUserId : false;
+                return isOwner ? { onEdit: handlePinEdit, onDelete: handlePinDelete } : {};
+              })()}
+            />
+          )}
         </Background>
 
         {/* MobilePinList를 Background 밖에 배치하되 같은 컨테이너 안에 */}
         {showMobilePinList && (
           <div className="absolute inset-0 z-20">
             <MobilePinList 
+              key={`mobile-pinlist-${loginRefreshTrigger}`}
               setShowMobilePinList={setShowMobilePinList}
               onPinSelect={handlePinSelect}
               refreshTrigger={refreshTrigger}
@@ -286,6 +303,7 @@ function App() {
         {showMobileFolder && (
           <div className="absolute inset-0 z-20">
             <MobileFolder 
+              key={`mobile-folder-${loginRefreshTrigger}`}
               setShowMobileFolder={setShowMobileFolder}
               onPinSelect={handleMobileFolderPinSelect}
               refreshTrigger={refreshTrigger}
@@ -297,22 +315,19 @@ function App() {
         {showMobileFriendList && (
           <div className="absolute inset-0 z-20">
             <MobileFriendList 
+              key={`mobile-friends-${loginRefreshTrigger}`}
               setShowMobileFriendList={setShowMobileFriendList}
+              onPinSelect={(post) => {
+                setSelectedPost(post);
+                setShowPinInfo(true);
+                setPinInfoSource('mobileFriendList');
+                setShowMobileFriendList(false);
+              }}
             />
           </div>
         )}
 
-        {/* PinInfo를 MobileFolder보다 높은 z-index로 배치 */}
-        {showPinInfo && (
-          <div className="absolute inset-0 z-30">
-            <PinInfo
-              selectedPost={selectedPost}
-              onClose={handlePinInfoClose}
-              onEdit={handlePinEdit}
-              onDelete={handlePinDelete}
-            />
-          </div>
-        )}
+        {/* PinInfo는 Background 내부에서 렌더링됨 */}
       </div>
       <div className="md:hidden flex-1 z-10">
         <Footer

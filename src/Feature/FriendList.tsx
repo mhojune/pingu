@@ -8,7 +8,9 @@ import {
   faUserMinus,
   faCheck,
   faTimes,
-  faTrash
+  faTrash,
+  faChevronRight,
+  faChevronDown
 } from "@fortawesome/free-solid-svg-icons";
 import { 
   createFriendshipRequest, 
@@ -18,11 +20,18 @@ import {
   acceptFriendshipRequest,
   deleteFriendship
 } from "../api/friendships";
-import type { FriendshipResponseDTO } from "../api/types";
+import type { FriendshipResponseDTO, PostResponseDTO } from "../api/types";
+// import type { PostResponseDTO } from "../api/types";
+import PinList from "./PinList";
+// PinInfo는 최상위(App)에서 띄우므로 여기서는 사용하지 않음
 
 type TabType = "friends" | "received" | "sent";
 
-const FriendList = () => {
+type FriendListProps = {
+  onPinSelect?: (post: PostResponseDTO) => void;
+};
+
+const FriendList = ({ onPinSelect }: FriendListProps) => {
   const [activeTab, setActiveTab] = useState<TabType>("friends");
   const [friends, setFriends] = useState<FriendshipResponseDTO[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponseDTO[]>([]);
@@ -31,6 +40,8 @@ const FriendList = () => {
   const [newFriendId, setNewFriendId] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [expandedFriendUserId, setExpandedFriendUserId] = useState<number | null>(null);
+  // PinInfo를 여기서 열지 않고 상위에서 열기 때문에 상태 불필요
 
   // localStorage에서 현재 사용자 ID 로드
   useEffect(() => {
@@ -260,31 +271,50 @@ const FriendList = () => {
                       return (
                         <div
                           key={friendship.id}
-                          className="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                          className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
                         >
-                          <div className="mr-4">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
-                              <FontAwesomeIcon 
-                                icon={faUser} 
-                                className="text-lg text-gray-400" 
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => setExpandedFriendUserId(prev => prev === friend.userId ? null : friend.userId || null)}
+                              className="mr-3 text-gray-600 hover:text-gray-800"
+                              aria-label="핀 목록 토글"
+                            >
+                              <FontAwesomeIcon icon={expandedFriendUserId === friend.userId ? faChevronDown : faChevronRight} />
+                            </button>
+                            <div className="mr-4">
+                              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100">
+                                <FontAwesomeIcon 
+                                  icon={faUser} 
+                                  className="text-lg text-gray-400" 
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-semibold">{friend.username}</span>
+                              </div>
+                              <span className="text-sm text-gray-500">{friend.phoneNumber}</span>
+                            </div>
+                            
+                            <button 
+                              onClick={() => handleRemoveFriend(friend.userId!)}
+                              className="flex items-center gap-2 px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                              친구 해제
+                            </button>
+                          </div>
+
+                          {expandedFriendUserId === friend.userId && (
+                            <div className="mt-4 border-t pt-4">
+                              <PinList
+                                userId={friend.userId}
+                                onPinSelect={onPinSelect}
+                                onFocusMap={undefined}
                               />
                             </div>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg font-semibold">{friend.username}</span>
-                            </div>
-                            <span className="text-sm text-gray-500">{friend.phoneNumber}</span>
-                          </div>
-                          
-                          <button 
-                            onClick={() => handleRemoveFriend(friend.userId!)}
-                            className="flex items-center gap-2 px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                            친구 해제
-                          </button>
+                          )}
                         </div>
                       );
                     })}
@@ -432,6 +462,8 @@ const FriendList = () => {
           </div>
         </div>
       )}
+
+      {/* PinInfo는 App에서 렌더링 */}
     </div>
   );
 };
